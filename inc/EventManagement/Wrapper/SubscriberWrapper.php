@@ -4,6 +4,7 @@ namespace LaunchpadCore\EventManagement\Wrapper;
 
 use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
+use League\Container\Container;
 use ReflectionClass;
 
 class SubscriberWrapper
@@ -12,19 +13,29 @@ class SubscriberWrapper
     protected $prefix = '';
 
     /**
+     * @var Container
+     */
+    protected $container;
+
+    /**
      * @param string $prefix
      */
-    public function __construct(string $prefix)
+    public function __construct(string $prefix, Container $container)
     {
         $this->prefix = $prefix;
+        $this->container = $container;
     }
 
     public function wrap(string $object): ClassicSubscriberInterface
     {
         $interfaces = class_implements($object);
-        if($interfaces && ! in_array(OptimizedSubscriberInterface::class, $interfaces)) {
+        if($interfaces && in_array(OptimizedSubscriberInterface::class, $interfaces)) {
             $events = $object::get_subscribed_events();
             return new WrappedClassicSubscriber($object, $events);
+        }
+
+        if($interfaces && in_array(ClassicSubscriberInterface::class, $interfaces)) {
+            return $this->container->get($object);
         }
 
         $methods = get_class_methods($object);
