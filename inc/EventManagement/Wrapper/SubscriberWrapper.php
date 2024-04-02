@@ -3,6 +3,7 @@
 namespace LaunchpadCore\EventManagement\Wrapper;
 
 use LaunchpadCore\EventManagement\SubscriberInterface;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 
 class SubscriberWrapper
@@ -10,11 +11,19 @@ class SubscriberWrapper
 
     protected $prefix = '';
 
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+
     /**
      * @param string $prefix
      */
-    public function __construct(string $prefix)
+    public function __construct(ContainerInterface $container, string $prefix)
     {
+        $this->container = $container;
         $this->prefix = $prefix;
     }
 
@@ -29,7 +38,7 @@ class SubscriberWrapper
             if ( ! $doc_comment ) {
                 continue;
             }
-            $pattern = "#@hook\s(?<name>[a-zA-Z\\\-_$]+)(\s(?<priority>[0-9]+))?#";
+            $pattern = "#@hook\s(?<name>[a-zA-Z\\\-_$/]+)(\s(?<priority>[0-9]+))?#";
 
             preg_match_all($pattern, $doc_comment, $matches, PREG_PATTERN_ORDER);
             if(! $matches) {
@@ -47,6 +56,6 @@ class SubscriberWrapper
             }
         }
 
-        return new WrappedSubscriber($object, $events);
+        return new WrappedSubscriber($this->container, $object, $events);
     }
 }
