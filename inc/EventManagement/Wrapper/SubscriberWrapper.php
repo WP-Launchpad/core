@@ -2,7 +2,8 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
+use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use ReflectionClass;
 
 class SubscriberWrapper
@@ -18,10 +19,16 @@ class SubscriberWrapper
         $this->prefix = $prefix;
     }
 
-    public function wrap($object): SubscriberInterface
+    public function wrap(string $object): ClassicSubscriberInterface
     {
+        $interfaces = class_implements($object);
+        if($interfaces && ! in_array(OptimizedSubscriberInterface::class, $interfaces)) {
+            $events = $object::get_subscribed_events();
+            return new WrappedClassicSubscriber($object, $events);
+        }
+
         $methods = get_class_methods($object);
-        $reflectionClass = new ReflectionClass(get_class($object));
+        $reflectionClass = new ReflectionClass($object);
         $events = [];
         foreach ($methods as $method) {
             $method_reflection = $reflectionClass->getMethod($method);
@@ -47,6 +54,6 @@ class SubscriberWrapper
             }
         }
 
-        return new WrappedSubscriber($object, $events);
+        return new WrappedClassicSubscriber($object, $events);
     }
 }

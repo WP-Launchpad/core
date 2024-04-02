@@ -2,9 +2,9 @@
 
 namespace LaunchpadCore\Tests\Fixtures\inc\Plugin\classes;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 
-class CommonSubscriber implements SubscriberInterface
+class FrontClassicSubscriber implements ClassicSubscriberInterface
 {
 
     public function get_subscribed_events()

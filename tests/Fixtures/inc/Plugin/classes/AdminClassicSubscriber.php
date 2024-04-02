@@ -1,9 +1,9 @@
 <?php
 namespace LaunchpadCore\Tests\Fixtures\inc\Plugin\classes;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 
-class AdminSubscriber implements SubscriberInterface {
+class AdminClassicSubscriber implements ClassicSubscriberInterface {
 
     public function get_subscribed_events()
     {

@@ -2,9 +2,9 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 
-class WrappedSubscriber implements SubscriberInterface
+class WrappedClassicSubscriber implements ClassicSubscriberInterface
 {
     protected $object;
 

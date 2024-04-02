@@ -1,22 +1,22 @@
 <?php
-require_once __DIR__ . '/classes/AdminSubscriber.php';
-require_once __DIR__ . '/classes/CommonSubscriber.php';
-require_once __DIR__ . '/classes/FrontSubscriber.php';
-require_once __DIR__ . '/classes/InitSubscriber.php';
+require_once __DIR__ . '/classes/AdminClassicSubscriber.php';
+require_once __DIR__ . '/classes/CommonClassicSubscriber.php';
+require_once __DIR__ . '/classes/FrontClassicSubscriber.php';
+require_once __DIR__ . '/classes/InitClassicSubscriber.php';
 require_once __DIR__ . '/classes/OptimizedSubscriber.php';
 
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
 use LaunchpadCore\Container\ServiceProviderInterface;
-use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\AdminSubscriber;
-use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\CommonSubscriber;
-use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\FrontSubscriber;
-use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\InitSubscriber;
+use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\AdminClassicSubscriber;
+use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\CommonClassicSubscriber;
+use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\FrontClassicSubscriber;
+use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\InitClassicSubscriber;
 use LaunchpadCore\Tests\Fixtures\inc\Plugin\classes\OptimizedSubscriber;
 
-$admin_subscriber = Mockery::mock(AdminSubscriber::class);
-$front_subscriber = Mockery::mock(FrontSubscriber::class);
-$init_subscriber = Mockery::mock(InitSubscriber::class);
-$common_subscriber = Mockery::mock(CommonSubscriber::class);
+$admin_subscriber = Mockery::mock(AdminClassicSubscriber::class);
+$front_subscriber = Mockery::mock(FrontClassicSubscriber::class);
+$init_subscriber = Mockery::mock(InitClassicSubscriber::class);
+$common_subscriber = Mockery::mock(CommonClassicSubscriber::class);
 $optimized_subscriber = Mockery::mock(OptimizedSubscriber::class);
 
 $front_provider = Mockery::mock(ServiceProviderInterface::class);
