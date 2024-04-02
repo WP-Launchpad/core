@@ -27,9 +27,7 @@ class Test_load extends TestCase {
         $event_setup = [
             'common_hook',
             'front_hook',
-            'init_hook',
-            'classic_hook',
-            'optimized_hook',
+            'init_hook'
         ];
 
         $event_not_setup = [
@@ -44,7 +42,7 @@ class Test_load extends TestCase {
 
         $container = new Container();
 
-        $plugin = new Plugin($container, $this->event_manager, new SubscriberWrapper($prefix, $container));
+        $plugin = new Plugin($container, $this->event_manager, new SubscriberWrapper($container, $prefix));
         $plugin->load([
             'prefix' => $prefix,
             'version' => '3.16'
@@ -53,8 +51,6 @@ class Test_load extends TestCase {
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\init\ServiceProvider::class,
-            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\classic\ServiceProvider::class,
-            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\optimized\ServiceProvider::class,
         ]);
 
         foreach ($event_setup as $event) {
