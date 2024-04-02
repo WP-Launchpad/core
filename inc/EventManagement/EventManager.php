@@ -28,10 +28,10 @@ class EventManager {
      * The event manager registers all the hooks that the given subscriber
      * wants to register with the WordPress Plugin API.
      *
-     * @param SubscriberInterface $subscriber Subscriber_Interface implementation.
+     * @param ClassicSubscriberInterface $subscriber Subscriber_Interface implementation.
      */
-    public function add_subscriber( SubscriberInterface $subscriber ) {
-        if ( $subscriber instanceof EventManagerAwareSubscriberInterface ) {
+    public function add_subscriber(ClassicSubscriberInterface $subscriber ) {
+        if ( $subscriber instanceof EventManagerAwareClassicSubscriberInterface ) {
             $subscriber->set_event_manager( $this );
         }
 
@@ -85,9 +85,9 @@ class EventManager {
      * The event manager removes all the hooks that the given subscriber
      * wants to register with the WordPress Plugin API.
      *
-     * @param SubscriberInterface $subscriber Subscriber_Interface implementation.
+     * @param ClassicSubscriberInterface $subscriber Subscriber_Interface implementation.
      */
-    public function remove_subscriber( SubscriberInterface $subscriber ) {
+    public function remove_subscriber(ClassicSubscriberInterface $subscriber ) {
         foreach ( $subscriber->get_subscribed_events() as $hook_name => $parameters ) {
             $this->remove_subscriber_callback( $subscriber, $hook_name, $parameters );
         }
@@ -97,11 +97,11 @@ class EventManager {
      * Adds the given subscriber's callback to a specific hook
      * of the WordPress plugin API.
      *
-     * @param SubscriberInterface $subscriber Subscriber_Interface implementation.
+     * @param ClassicSubscriberInterface $subscriber Subscriber_Interface implementation.
      * @param string              $hook_name  Hook name.
      * @param mixed               $parameters Parameters, can be a string, an array or a multidimensional array.
      */
-    private function add_subscriber_callback( SubscriberInterface $subscriber, $hook_name, $parameters ) {
+    private function add_subscriber_callback(ClassicSubscriberInterface $subscriber, $hook_name, $parameters ) {
         if ( is_string( $parameters ) ) {
             $this->add_callback( $hook_name, [ $subscriber, $parameters ] );
         } elseif ( is_array( $parameters ) && count( $parameters ) !== count( $parameters, COUNT_RECURSIVE ) ) {
@@ -117,11 +117,11 @@ class EventManager {
      * Removes the given subscriber's callback to a specific hook
      * of the WordPress plugin API.
      *
-     * @param SubscriberInterface $subscriber Subscriber_Interface implementation.
+     * @param ClassicSubscriberInterface $subscriber Subscriber_Interface implementation.
      * @param string              $hook_name  Hook name.
      * @param mixed               $parameters Parameters, can be a string, an array or a multidimensional array.
      */
-    private function remove_subscriber_callback( SubscriberInterface $subscriber, $hook_name, $parameters ) {
+    private function remove_subscriber_callback(ClassicSubscriberInterface $subscriber, $hook_name, $parameters ) {
         if ( is_string( $parameters ) ) {
             $this->remove_callback( $hook_name, [ $subscriber, $parameters ] );
         } elseif ( is_array( $parameters ) && count( $parameters ) !== count( $parameters, COUNT_RECURSIVE ) ) {

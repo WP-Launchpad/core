@@ -5,12 +5,13 @@ namespace LaunchpadCore;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\EventManagement\SubscriberInterface;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use Psr\Container\ContainerInterface;
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
 use LaunchpadCore\Container\ServiceProviderInterface;
 use LaunchpadCore\EventManagement\EventManager;
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 
 class Plugin
 {
@@ -174,10 +175,7 @@ class Plugin
         }
 
         foreach ( $subscribers as $subscriber ) {
-            $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof SubscriberInterface ) {
-                $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
-            }
+            $subscriber_object = $this->subscriber_wrapper->wrap($subscriber);
 
             $this->event_manager->add_subscriber( $subscriber_object );
         }
@@ -208,17 +206,14 @@ class Plugin
          *
          * @return SubscriberInterface[]
          */
-        $subscribers = apply_filters( "{$this->container->get('prefix')}load_subscribers", $subscribers, $service_provider_instance );
+        $subscribers = apply_filters( "{$this->container->get( 'prefix' )}load_subscribers", $subscribers, $service_provider_instance );
 
         if ( empty( $subscribers ) ) {
             return;
         }
 
         foreach ( $subscribers as $subscriber ) {
-            $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof SubscriberInterface ) {
-                $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
-            }
+            $subscriber_object = $this->subscriber_wrapper->wrap( $subscriber );
 
             $this->event_manager->add_subscriber( $subscriber_object );
         }

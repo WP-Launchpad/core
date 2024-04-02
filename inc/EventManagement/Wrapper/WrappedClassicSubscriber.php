@@ -2,20 +2,12 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use Psr\Container\ContainerInterface;
 
-class WrappedSubscriber implements SubscriberInterface
+class WrappedClassicSubscriber implements ClassicSubscriberInterface
 {
-    /**
-     * @var string
-     */
     protected $object;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
 
     /**
      * @var array
@@ -26,6 +18,11 @@ class WrappedSubscriber implements SubscriberInterface
      * @var string
      */
     protected $instance;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
 
     /**
      * @param $object
@@ -48,6 +45,9 @@ class WrappedSubscriber implements SubscriberInterface
 
     public function __call($name, $arguments)
     {
+        if( ! method_exists( $this, $name ) ) {
+            return $this->object->{$name}(...$arguments);
+        }
 
 
         if( method_exists( $this, $name ) ) {

@@ -2,12 +2,12 @@
 
 namespace LaunchpadCore\Tests\Fixtures\inc\Plugin\classes;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 
-class OptimizedSubscriber implements SubscriberInterface
+class OptimizedSubscriber implements OptimizedSubscriberInterface
 {
 
-    public function get_subscribed_events()
+    public static function get_subscribed_events()
     {
         return [];
     }

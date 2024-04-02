@@ -1,7 +1,7 @@
 <?php
 namespace LaunchpadCore\EventManagement;
 
-interface EventManagerAwareSubscriberInterface extends SubscriberInterface {
+interface EventManagerAwareClassicSubscriberInterface extends ClassicSubscriberInterface {
     /**
      * Set the WordPress event manager for the subscriber.
      *
