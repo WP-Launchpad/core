@@ -5,12 +5,16 @@ namespace LaunchpadCore;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
+use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
 use LaunchpadCore\Container\ServiceProviderInterface;
 use LaunchpadCore\EventManagement\EventManager;
 use LaunchpadCore\EventManagement\SubscriberInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Plugin
 {
@@ -29,6 +33,8 @@ class Plugin
     private $event_manager;
 
     /**
+     * Wraps subscriber under the common subscriber.
+     *
      * @var SubscriberWrapper
      */
     private $subscriber_wrapper;
@@ -36,7 +42,9 @@ class Plugin
     /**
      * Creates an instance of the Plugin.
      *
-     * @param ContainerInterface $container     Instance of the container.
+     * @param ContainerInterface $container Instance of the container.
+     * @param EventManager $event_manager WordPress event manager.
+     * @param SubscriberWrapper $subscriber_wrapper Wraps subscriber under the common subscriber.
      */
     public function __construct( ContainerInterface $container, EventManager $event_manager, SubscriberWrapper $subscriber_wrapper ) {
         $this->container = $container;
@@ -57,9 +65,13 @@ class Plugin
      * Loads the plugin into WordPress.
      *
      * @param array<string,mixed> $params Parameters to pass to the container.
+     * @param array $providers List of providers from the plugin.
      *
      * @return void
      *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws \ReflectionException
      */
     public function load(array $params, array $providers = []) {
 
@@ -119,6 +131,9 @@ class Plugin
      * @param ServiceProviderInterface[] $providers Providers given to the plugin.
      *
      * @return ServiceProviderInterface[]
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     protected function optimize_service_providers(array $providers): array {
         $optimized_providers = [];
@@ -156,6 +171,10 @@ class Plugin
      * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
      *
      * @return void
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws \ReflectionException
      */
     private function load_init_subscribers( ServiceProviderInterface $service_provider_instance ) {
         $subscribers = $service_provider_instance->get_init_subscribers();
@@ -175,7 +194,7 @@ class Plugin
 
         foreach ( $subscribers as $subscriber ) {
             $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof SubscriberInterface ) {
+            if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
                 $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
             }
 
@@ -189,6 +208,10 @@ class Plugin
      * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
      *
      * @return void
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws \ReflectionException
      */
     private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
 
@@ -216,7 +239,7 @@ class Plugin
 
         foreach ( $subscribers as $subscriber ) {
             $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof SubscriberInterface ) {
+            if ( ! $subscriber_object instanceof OptimizedSubscriberInterface && ! $subscriber_object instanceof ClassicSubscriberInterface ) {
                 $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
             }
 
