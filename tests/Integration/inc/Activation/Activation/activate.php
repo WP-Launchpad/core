@@ -6,6 +6,7 @@ use LaunchpadCore\Activation\Activation;
 use LaunchpadCore\Tests\Integration\inc\Activation\Activation\classes\Activator;
 use LaunchpadCore\Tests\Integration\inc\Activation\Activation\classes\ServiceProvider;
 use LaunchpadCore\Tests\Integration\TestCase;
+use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 
 /**
@@ -27,6 +28,7 @@ class Test_activate extends TestCase {
         ];
 
         Activation::set_container($this->container);
+        Activation::setDispatcher(new Dispatcher());
         Activation::set_params($params);
         Activation::set_providers([
             ServiceProvider::class
