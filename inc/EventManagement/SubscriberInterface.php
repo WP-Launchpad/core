@@ -2,7 +2,7 @@
 
 namespace LaunchpadCore\EventManagement;
 
-interface SubscriberInterface
-{
+interface SubscriberInterface {
+
 
 }

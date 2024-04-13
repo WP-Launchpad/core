@@ -5,34 +5,33 @@ namespace LaunchpadCore\Tests\Integration\inc\Plugin;
 use LaunchpadCore\EventManagement\EventManager;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadCore\Plugin;
+use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
 use League\Container\Container;
 
 /**
  * @covers \LaunchpadCore\Plugin::load
- * @group AdminOnly
  */
-class Test_adminload extends TestCase {
+class Test_invalidinitload extends TestCase {
+    use SetupPluginTrait;
 
-    /**
-     * @var EventManager
-     */
-    protected $event_manager;
+    protected $prefix = 'test';
 
     public function testShouldDoAsExpected()
     {
-        $prefix = 'test';
-
         $this->event_manager = new EventManager();
 
         $event_setup = [
-            'admin_hook',
             'common_hook',
-            'init_hook'
+            'front_hook',
+            'init_hook',
+            'optimize_init',
+            'classic_hook',
+            'root_hook',
         ];
 
         $event_not_setup = [
-            'front_hook',
+            'admin_hook'
         ];
 
         $events =array_merge($event_setup, $event_not_setup);
@@ -41,15 +40,14 @@ class Test_adminload extends TestCase {
             $this->assertFalse($this->event_manager->has_callback($event), $event);
         }
 
-        $plugin = new Plugin(new Container(), $this->event_manager, new SubscriberWrapper($prefix));
-        $plugin->load([
-            'prefix' => $prefix,
-            'version' => '3.16'
-        ], [
+        $this->setup_plugin($this->prefix, [
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\common\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\init\ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\optimize\ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\classic\ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\root\ServiceProvider::class,
         ]);
 
         foreach ($event_setup as $event) {
@@ -61,15 +59,15 @@ class Test_adminload extends TestCase {
         }
 
         $actions = [
-            "{$prefix}before_load",
-            "{$prefix}after_load",
+          "{$this->prefix}before_load",
+          "{$this->prefix}after_load",
         ];
 
         $filters = [
-            "{$prefix}container",
-            "{$prefix}load_provider_subscribers",
-            "{$prefix}load_init_subscribers",
-            "{$prefix}load_subscribers",
+            "{$this->prefix}container",
+            "{$this->prefix}load_provider_subscribers",
+            "{$this->prefix}load_init_subscribers",
+            "{$this->prefix}load_subscribers",
         ];
         foreach ($actions as $action) {
             did_action($action);
@@ -78,5 +76,13 @@ class Test_adminload extends TestCase {
         foreach ($filters as $filter) {
             did_filter($filter);
         }
+    }
+
+    /**
+     * @hook $prefixload_init_subscribers
+     */
+    public function invalid_subscriber_list()
+    {
+        return false;
     }
 }

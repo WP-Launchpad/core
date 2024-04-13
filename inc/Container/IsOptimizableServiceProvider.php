@@ -2,7 +2,7 @@
 
 namespace LaunchpadCore\Container;
 
-interface IsOptimizableServiceProvider extends ServiceProviderInterface
-{
+interface IsOptimizableServiceProvider extends ServiceProviderInterface {
+
 
 }

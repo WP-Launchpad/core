@@ -8,6 +8,7 @@ use LaunchpadCore\Plugin;
 use LaunchpadCore\Tests\Integration\inc\Container\HasInflectorInterface\classes\Inflected;
 use LaunchpadCore\Tests\Integration\inc\Container\HasInflectorInterface\classes\InflectorAware;
 use LaunchpadCore\Tests\Integration\inc\Container\HasInflectorInterface\classes\ServiceProvider;
+use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
 use League\Container\Container;
 
@@ -16,27 +17,17 @@ use League\Container\Container;
  */
 class Test_getInflectors extends TestCase {
 
-    /**
-     * @var EventManager
-     */
-    protected $event_manager;
+    use SetupPluginTrait;
 
     public function testShouldDoAsExpected()
     {
-        $this->event_manager = new EventManager();
 
         $prefix = 'test';
 
-        $container = new Container();
-
-        $plugin = new Plugin($container, $this->event_manager, new SubscriberWrapper($prefix));
-        $plugin->load([
-            'prefix' => $prefix,
-            'version' => '3.16'
-        ], [
+        $this->setup_plugin($prefix, [
             ServiceProvider::class
         ]);
 
-        $this->assertInstanceOf(Inflected::class, $container->get(InflectorAware::class)->get_inflector());
+        $this->assertInstanceOf(Inflected::class, $this->container->get(InflectorAware::class)->get_inflector());
     }
 }

@@ -12,26 +12,26 @@ use League\Container\Container;
 /**
  * @covers \LaunchpadCore\Plugin::load
  */
-class Test_load extends TestCase {
+class Test_emptyinitload extends TestCase {
     use SetupPluginTrait;
+
+    protected $prefix = 'test';
 
     public function testShouldDoAsExpected()
     {
         $this->event_manager = new EventManager();
 
-        $prefix = 'test';
-
         $event_setup = [
             'common_hook',
             'front_hook',
-            'init_hook',
-            'optimize_init',
             'classic_hook',
-            'root_hook',
         ];
 
         $event_not_setup = [
-            'admin_hook'
+            'admin_hook',
+            'init_hook',
+            'optimize_init',
+            'root_hook',
         ];
 
         $events =array_merge($event_setup, $event_not_setup);
@@ -40,7 +40,7 @@ class Test_load extends TestCase {
             $this->assertFalse($this->event_manager->has_callback($event), $event);
         }
 
-        $this->setup_plugin($prefix, [
+        $this->setup_plugin($this->prefix, [
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\common\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,
@@ -59,15 +59,15 @@ class Test_load extends TestCase {
         }
 
         $actions = [
-          "{$prefix}before_load",
-          "{$prefix}after_load",
+          "{$this->prefix}before_load",
+          "{$this->prefix}after_load",
         ];
 
         $filters = [
-            "{$prefix}container",
-            "{$prefix}load_provider_subscribers",
-            "{$prefix}load_init_subscribers",
-            "{$prefix}load_subscribers",
+            "{$this->prefix}container",
+            "{$this->prefix}load_provider_subscribers",
+            "{$this->prefix}load_init_subscribers",
+            "{$this->prefix}load_subscribers",
         ];
         foreach ($actions as $action) {
             did_action($action);
@@ -76,5 +76,13 @@ class Test_load extends TestCase {
         foreach ($filters as $filter) {
             did_filter($filter);
         }
+    }
+
+    /**
+     * @hook $prefixload_init_subscribers
+     */
+    public function invalid_subscriber_list()
+    {
+        return [];
     }
 }

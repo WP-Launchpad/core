@@ -4,6 +4,7 @@ namespace LaunchpadCore;
 
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 use LaunchpadCore\Activation\Activation;
 use LaunchpadCore\Deactivation\Deactivation;
@@ -68,10 +69,13 @@ function boot(string $plugin_launcher_file) {
 
         $container = new Container();
 
+        $dispatcher = new Dispatcher();
+
         $wp_rocket = new Plugin(
             $container,
             new EventManager(),
-            new SubscriberWrapper($container, $prefix)
+            new SubscriberWrapper($prefix),
+            $dispatcher
         );
 
         $wp_rocket->load( $params, $providers );
