@@ -81,13 +81,16 @@ function boot(string $plugin_launcher_file) {
         $wp_rocket->load( $params, $providers );
     } );
 
+
     Deactivation::set_container(new Container());
+    Deactivation::setDispatcher(new Dispatcher());
     Deactivation::set_params($params);
     Deactivation::set_providers($providers);
 
     register_deactivation_hook( $plugin_launcher_file, [ Deactivation::class, 'deactivate_plugin' ] );
 
     Activation::set_container(new Container());
+    Activation::setDispatcher(new Dispatcher());
     Activation::set_params($params);
     Activation::set_providers($providers);
 

@@ -2,15 +2,24 @@
 
 namespace LaunchpadCore\Dispatcher\Sanitizer;
 
-use LaunchpadCore\Container\ServiceProviderInterface;
-use LaunchpadCore\EventManagement\SubscriberInterface;
 use LaunchpadDispatcher\Interfaces\SanitizerInterface;
 
 class SubscriberSignaturesSanitizer implements SanitizerInterface
 {
-
+    /**
+     * Should return default value.
+     *
+     * @var bool
+     */
     protected $is_default = false;
 
+    /**
+     * Sanitize the value.
+     *
+     * @param mixed $value Value to sanitize.
+     *
+     * @return array|false
+     */
     public function sanitize($value)
     {
         $this->is_default = false;
@@ -33,6 +42,14 @@ class SubscriberSignaturesSanitizer implements SanitizerInterface
         return $output;
     }
 
+    /**
+     * Should return default value.
+     *
+     * @param mixed $value Current value.
+     * @param mixed $original Original value.
+     *
+     * @return bool
+     */
     public function is_default($value, $original): bool
     {
         return $this->is_default;

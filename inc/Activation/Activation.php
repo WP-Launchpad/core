@@ -5,6 +5,7 @@ namespace LaunchpadCore\Activation;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
 use Psr\Container\ContainerInterface;
 
 class Activation {
@@ -16,7 +17,9 @@ class Activation {
 
 	protected static $container;
 
-	public static function set_providers( array $providers ) {
+    protected static $dispatcher;
+
+    public static function set_providers( array $providers ) {
 		self::$providers = $providers;
 	}
 
@@ -27,6 +30,11 @@ class Activation {
 	public static function set_container( ContainerInterface $container ) {
 		self::$container = $container;
 	}
+
+    public static function setDispatcher($dispatcher): void
+    {
+        self::$dispatcher = $dispatcher;
+    }
 
 	/**
 	 * Performs these actions during the plugin activation
@@ -41,7 +49,10 @@ class Activation {
 			self::$container->add( $key, $value );
 		}
 
-		$container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', array( key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ) );
+        $container->share( 'dispatcher', self::$dispatcher );
+
+        $container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', array( key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ) );
+        $container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );
 
 		$providers = array_filter(
 			self::$providers,
