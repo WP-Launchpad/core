@@ -2,38 +2,32 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
-use LaunchpadCore\EventManagement\SubscriberInterface;
-use Psr\Container\ContainerInterface;
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 
-class WrappedSubscriber implements SubscriberInterface
+class WrappedSubscriber implements ClassicSubscriberInterface
 {
     /**
-     * @var string
+     * Real Subscriber.
+     *
+     * @var object
      */
     protected $object;
 
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
+     * Mapping from the events from the subscriber.
+     *
      * @var array
      */
     protected $events;
 
     /**
-     * @var string
+     * Instantiate the class.
+     *
+     * @param object $object Real Subscriber.
+     * @param array $events Mapping from the events from the subscriber.
      */
-    protected $instance;
-
-    /**
-     * @param $object
-     * @param array $events
-     */
-    public function __construct( ContainerInterface $container, string $object, array $events = [] )
+    public function __construct( $object, array $events = [] )
     {
-        $this->container = $container;
         $this->object = $object;
         $this->events = $events;
     }
@@ -46,18 +40,22 @@ class WrappedSubscriber implements SubscriberInterface
         return $this->events;
     }
 
+    /**
+     * Delegate callbacks to the actual subscriber.
+     *
+     * @param string $name Name from the method.
+     * @param array $arguments Parameters from the method.
+     *
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
 
 
         if( method_exists( $this, $name ) ) {
-            return $this->{$name}(...$arguments);
+            return $this->{$name}( ...$arguments );
         }
 
-        if( ! $this->instance) {
-            $this->instance = $this->container->get($this->object);
-        }
-
-        return $this->instance->{$name}(...$arguments);
+        return $this->object->{$name}( ...$arguments );
     }
 }

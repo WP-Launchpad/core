@@ -28,9 +28,9 @@ class EventManager {
      * The event manager registers all the hooks that the given subscriber
      * wants to register with the WordPress Plugin API.
      *
-     * @param SubscriberInterface $subscriber Subscriber_Interface implementation.
+     * @param ClassicSubscriberInterface $subscriber Subscriber_Interface implementation.
      */
-    public function add_subscriber( SubscriberInterface $subscriber ) {
+    public function add_subscriber( ClassicSubscriberInterface $subscriber ) {
         if ( $subscriber instanceof EventManagerAwareSubscriberInterface ) {
             $subscriber->set_event_manager( $this );
         }
