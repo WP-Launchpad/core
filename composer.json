@@ -28,11 +28,14 @@
         "wp-media/phpunit": "^3.0",
         "wp-launchpad/cli": "^1.0.2",
         "wp-launchpad/phpunit-wp-hooks": "^1.0",
+        "phpstan/phpstan": "^1.10",
+        "szepeviktor/phpstan-wordpress": "^1.3"
         "wp-coding-standards/wpcs": "^3",
         "phpcompatibility/phpcompatibility-wp": "^2.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0"
     },
     "scripts": {
+        "run-stan": "vendor/bin/phpstan analyze --memory-limit=2G --no-progress -c tests/phpstan/phpstan.neon",
         "phpcs": "phpcs --basepath=.",
         "phpcs-changed": "./bin/phpcs-changed.sh",
         "phpcs:fix": "phpcbf",
