@@ -3,7 +3,6 @@
 namespace LaunchpadCore;
 
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
-use LaunchpadCore\Container\PrefixAwareInterface;
 use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 use LaunchpadCore\Activation\Activation;
@@ -31,8 +30,8 @@ function boot(string $plugin_launcher_file) {
     }
 
 
-    $params = require_once $plugin_root_dir . 'configs/parameters.php';
-    $providers = require_once $plugin_root_dir . 'configs/providers.php';
+    $params = require $plugin_root_dir . 'configs/parameters.php';
+    $providers = require $plugin_root_dir . 'configs/providers.php';
 
     /**
      * Loads plugin translations
