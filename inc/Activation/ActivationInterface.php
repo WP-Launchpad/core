@@ -2,13 +2,13 @@
 
 namespace LaunchpadCore\Activation;
 
-interface ActivationInterface
-{
+interface ActivationInterface {
 
-    /**
-     * Executes this method on plugin activation
-     *
-     * @return void
-     */
-    public function activate();
+
+	/**
+	 * Executes this method on plugin activation
+	 *
+	 * @return void
+	 */
+	public function activate();
 }

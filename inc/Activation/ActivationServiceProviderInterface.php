@@ -2,7 +2,7 @@
 
 namespace LaunchpadCore\Activation;
 
-interface ActivationServiceProviderInterface
-{
+interface ActivationServiceProviderInterface {
+
 
 }

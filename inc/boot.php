@@ -3,7 +3,7 @@
 namespace LaunchpadCore;
 
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
-use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 use LaunchpadCore\Activation\Activation;
 use LaunchpadCore\Deactivation\Deactivation;
@@ -30,8 +30,8 @@ function boot(string $plugin_launcher_file) {
     }
 
 
-    $params = require_once $plugin_root_dir . 'configs/parameters.php';
-    $providers = require_once $plugin_root_dir . 'configs/providers.php';
+    $params = require $plugin_root_dir . 'configs/parameters.php';
+    $providers = require $plugin_root_dir . 'configs/providers.php';
 
     /**
      * Loads plugin translations
@@ -68,22 +68,28 @@ function boot(string $plugin_launcher_file) {
 
         $container = new Container();
 
+        $dispatcher = new Dispatcher();
+
         $wp_rocket = new Plugin(
             $container,
             new EventManager(),
-            new SubscriberWrapper($container, $prefix)
+            new SubscriberWrapper($prefix),
+            $dispatcher
         );
 
         $wp_rocket->load( $params, $providers );
     } );
 
+
     Deactivation::set_container(new Container());
+    Deactivation::setDispatcher(new Dispatcher());
     Deactivation::set_params($params);
     Deactivation::set_providers($providers);
 
     register_deactivation_hook( $plugin_launcher_file, [ Deactivation::class, 'deactivate_plugin' ] );
 
     Activation::set_container(new Container());
+    Activation::setDispatcher(new Dispatcher());
     Activation::set_params($params);
     Activation::set_providers($providers);
 

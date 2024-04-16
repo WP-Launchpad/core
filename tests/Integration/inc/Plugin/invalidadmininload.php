@@ -3,41 +3,37 @@
 namespace LaunchpadCore\Tests\Integration\inc\Plugin;
 
 use LaunchpadCore\EventManagement\EventManager;
-use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
-use LaunchpadCore\Plugin;
 use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
-use League\Container\Container;
 
 /**
  * @covers \LaunchpadCore\Plugin::load
+ * @group AdminOnly
  */
-class Test_load extends TestCase {
+class Test_invalidadmininload extends TestCase {
+
     use SetupPluginTrait;
 
     public function testShouldDoAsExpected()
     {
-        $this->event_manager = new EventManager();
-
         $prefix = 'test';
 
+        $this->event_manager = new EventManager();
+
         $event_setup = [
+            'admin_hook',
             'common_hook',
-            'front_hook',
-            'init_hook',
-            'optimize_init',
-            'classic_hook',
-            'root_hook',
+            'init_hook'
         ];
 
         $event_not_setup = [
-            'admin_hook'
+            'front_hook',
         ];
 
         $events =array_merge($event_setup, $event_not_setup);
 
         foreach ($events as $event) {
-            $this->assertFalse($this->event_manager->has_callback($event), $event);
+            $this->assertFalse($this->event_manager->has_callback($event), "$event is setup");
         }
 
         $this->setup_plugin($prefix, [
@@ -45,22 +41,19 @@ class Test_load extends TestCase {
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\init\ServiceProvider::class,
-            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\optimize\ServiceProvider::class,
-            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\classic\ServiceProvider::class,
-            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\root\ServiceProvider::class,
         ]);
 
         foreach ($event_setup as $event) {
-            $this->assertTrue($this->event_manager->has_callback($event), $event);
+            $this->assertTrue($this->event_manager->has_callback($event), "$event is not setup");
         }
 
         foreach ($event_not_setup as $event) {
-            $this->assertFalse($this->event_manager->has_callback($event), $event);
+            $this->assertFalse($this->event_manager->has_callback($event), "$event is setup");
         }
 
         $actions = [
-          "{$prefix}before_load",
-          "{$prefix}after_load",
+            "{$prefix}before_load",
+            "{$prefix}after_load",
         ];
 
         $filters = [
@@ -76,5 +69,13 @@ class Test_load extends TestCase {
         foreach ($filters as $filter) {
             did_filter($filter);
         }
+    }
+
+    /**
+     * @hook $prefixload_subscribers
+     */
+    public function invalid_subscriber_list()
+    {
+        return false;
     }
 }

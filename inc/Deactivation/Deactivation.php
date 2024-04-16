@@ -5,94 +5,110 @@ namespace LaunchpadCore\Deactivation;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
 use Psr\Container\ContainerInterface;
 
-class Deactivation
-{
+class Deactivation {
 
-    protected static $providers = [];
+	protected static $providers = [];
 
-    protected static $params = [];
+	protected static $params = [];
 
-    protected static $container;
+	protected static $container;
 
-    public static function set_providers(array $providers) {
-        self::$providers = $providers;
+    protected static $dispatcher;
+
+	public static function set_providers( array $providers ) {
+		self::$providers = $providers;
+	}
+
+	public static function set_params( array $params ) {
+		self::$params = $params;
+	}
+
+	public static function set_container( ContainerInterface $container ) {
+		self::$container = $container;
+	}
+
+    public static function setDispatcher($dispatcher): void
+    {
+        self::$dispatcher = $dispatcher;
     }
 
-    public static function set_params(array $params) {
-        self::$params = $params;
-    }
+	/**
+	 * Performs these actions during the plugin deactivation
+	 *
+	 * @return void
+	 */
+	public static function deactivate_plugin() {
 
-    public static function set_container(ContainerInterface $container) {
-        self::$container = $container;
-    }
+		$container = self::$container;
 
-    /**
-     * Performs these actions during the plugin deactivation
-     *
-     * @return void
-     */
-    public static function deactivate_plugin() {
+		foreach ( self::$params as $key => $value ) {
+			$container->add( $key, $value );
+		}
 
-        $container = self::$container;
+        $container->share( 'dispatcher', self::$dispatcher );
 
-        foreach (self::$params as $key => $value) {
-            $container->add( $key, $value);
-        }
+        $container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', array( key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ) );
+        $container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );
 
-        $container->inflector(PrefixAwareInterface::class)->invokeMethod('set_prefix', [key_exists('prefix', self::$params) ? self::$params['prefix']: '']);
+		$providers = array_filter(
+			self::$providers,
+			function ( $provider ) {
+				if ( is_string( $provider ) ) {
+					$provider = new $provider();
+				}
 
-        $providers = array_filter(self::$providers, function ($provider) {
-            if(is_string($provider)) {
-                $provider = new $provider();
-            }
+				if ( ! $provider instanceof DeactivationServiceProviderInterface && ( ! $provider instanceof HasInflectorInterface || count( $provider->get_inflectors() ) === 0 ) ) {
+					return false;
+				}
 
-            if(! $provider instanceof DeactivationServiceProviderInterface && (! $provider instanceof HasInflectorInterface || count($provider->get_inflectors()) === 0)) {
-                return false;
-            }
+				return $provider;
+			}
+			);
 
-            return $provider;
-        });
+		$providers = array_map(
+			function ( $provider ) {
+				if ( is_string( $provider ) ) {
+					return new $provider();
+				}
+				return $provider;
+			},
+			$providers
+			);
 
-        $providers = array_map(function ($provider) {
-            if(is_string($provider)) {
-                return new $provider();
-            }
-            return $provider;
-        }, $providers);
+		foreach ( $providers as $provider ) {
+			$container->addServiceProvider( $provider );
+		}
 
-        foreach ($providers as $provider) {
-            $container->addServiceProvider($provider);
-        }
+		foreach ( $providers as $service_provider ) {
+			if ( ! $service_provider instanceof HasInflectorInterface ) {
+				continue;
+			}
+			$service_provider->register_inflectors();
+		}
 
-        foreach ( $providers as $service_provider ) {
-            if( ! $service_provider instanceof HasInflectorInterface ) {
-                continue;
-            }
-            $service_provider->register_inflectors();
-        }
+		/**
+		 * Deactivation providers.
+		 *
+		 * @param AbstractServiceProvider[] $providers Providers.
+		 * @return AbstractServiceProvider[]
+		 */
+		$providers = apply_filters( "{$container->get('prefix')}deactivate_providers", $providers );
 
-        /**
-         * Deactivation providers.
-         *
-         * @param AbstractServiceProvider[] $providers Providers.
-         * @return AbstractServiceProvider[]
-         */
-        $providers = apply_filters("{$container->get('prefix')}deactivate_providers", $providers);
+		foreach ( $providers as $provider ) {
+			if ( ! $provider instanceof HasDeactivatorServiceProviderInterface ) {
+				continue;
+			}
 
-        foreach ($providers as $provider) {
-            if(! $provider instanceof HasDeactivatorServiceProviderInterface) {
-                continue;
-            }
-
-            foreach ( $provider->get_deactivators() as $deactivator ) {
-                $deactivator_instance = self::$container->get( $deactivator );
-                if(! $deactivator_instance instanceof DeactivationInterface) {
-                    continue;
-                }
-                $deactivator_instance->deactivate();
-            }
-        }
-    }
+			foreach ( $provider->get_deactivators() as $deactivator ) {
+				$deactivator_instance = self::$container->get( $deactivator );
+				if ( ! $deactivator_instance instanceof DeactivationInterface ) {
+					continue;
+				}
+				$deactivator_instance->deactivate();
+			}
+		}
+	}
 }

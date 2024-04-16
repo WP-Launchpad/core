@@ -11,6 +11,8 @@ abstract class TestCase extends BaseTestCase
 
     protected $config;
 
+    protected $prefix = '';
+
     protected static $transients = [];
 
     public static function set_up_before_class()

@@ -5,9 +5,12 @@ namespace LaunchpadCore;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
+use LaunchpadCore\Dispatcher\Sanitizer\SubscriberSignaturesSanitizer;
 use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
+use LaunchpadDispatcher\Dispatcher;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
@@ -16,234 +19,246 @@ use LaunchpadCore\EventManagement\EventManager;
 use LaunchpadCore\EventManagement\SubscriberInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class Plugin
-{
-    /**
-     * Instance of Container class.
-     *
-     * @var ContainerInterface instance
-     */
-    private $container;
+class Plugin {
 
-    /**
-     * Instance of the event manager.
-     *
-     * @var EventManager
-     */
-    private $event_manager;
+	/**
+	 * Instance of Container class.
+	 *
+	 * @var ContainerInterface instance
+	 */
+	private $container;
 
-    /**
-     * Wraps subscriber under the common subscriber.
-     *
-     * @var SubscriberWrapper
-     */
-    private $subscriber_wrapper;
+	/**
+	 * Instance of the event manager.
+	 *
+	 * @var EventManager
+	 */
+	private $event_manager;
 
-    /**
-     * Creates an instance of the Plugin.
-     *
-     * @param ContainerInterface $container Instance of the container.
-     * @param EventManager $event_manager WordPress event manager.
-     * @param SubscriberWrapper $subscriber_wrapper Wraps subscriber under the common subscriber.
-     */
-    public function __construct( ContainerInterface $container, EventManager $event_manager, SubscriberWrapper $subscriber_wrapper ) {
-        $this->container = $container;
-        $this->event_manager = $event_manager;
-        $this->subscriber_wrapper = $subscriber_wrapper;
-    }
+	/**
+	 * Wraps subscriber under the common subscriber.
+	 *
+	 * @var SubscriberWrapper
+	 */
+	private $subscriber_wrapper;
 
-    /**
-     * Returns the Rocket container instance.
-     *
-     * @return ContainerInterface
-     */
-    public function get_container() {
-        return $this->container;
-    }
+	/**
+	 * @var Dispatcher
+	 */
+	protected $dispatcher;
 
-    /**
-     * Loads the plugin into WordPress.
-     *
-     * @param array<string,mixed> $params Parameters to pass to the container.
-     * @param array $providers List of providers from the plugin.
-     *
-     * @return void
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws \ReflectionException
-     */
-    public function load(array $params, array $providers = []) {
+	/**
+	 * Creates an instance of the Plugin.
+	 *
+	 * @param ContainerInterface $container Instance of the container.
+	 * @param EventManager       $event_manager WordPress event manager.
+	 * @param SubscriberWrapper  $subscriber_wrapper Wraps subscriber under the common subscriber.
+	 * @param Dispatcher         $dispatcher
+	 */
+	public function __construct( ContainerInterface $container, EventManager $event_manager, SubscriberWrapper $subscriber_wrapper, Dispatcher $dispatcher ) {
+		$this->container          = $container;
+		$this->event_manager      = $event_manager;
+		$this->subscriber_wrapper = $subscriber_wrapper;
+		$this->dispatcher         = $dispatcher;
+	}
 
-        foreach ($params as $key => $value) {
-            $this->container->share( $key, $value );
-        }
+	/**
+	 * Returns the Rocket container instance.
+	 *
+	 * @return ContainerInterface
+	 */
+	public function get_container() {
+		return $this->container;
+	}
 
-        /**
-         * Runs before the plugin is loaded.
-         */
-        do_action("{$this->container->get('prefix')}before_load");
+	/**
+	 * Loads the plugin into WordPress.
+	 *
+	 * @param array<string,mixed> $params Parameters to pass to the container.
+	 * @param array               $providers List of providers from the plugin.
+	 *
+	 * @return void
+	 *
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 * @throws \ReflectionException
+	 */
+	public function load( array $params, array $providers = [] ) {
 
-        add_filter( "{$this->container->get('prefix')}container", [ $this, 'get_container' ] );
+		foreach ( $params as $key => $value ) {
+			$this->container->share( $key, $value );
+		}
 
-        $this->container->share( 'event_manager', $this->event_manager );
+		/**
+		 * Runs before the plugin is loaded.
+		 */
+		$this->dispatcher->do_action( "{$this->container->get('prefix')}before_load" );
 
-        $this->container->inflector(PrefixAwareInterface::class)->invokeMethod('set_prefix', [$this->container->get('prefix')]);
+		add_filter( "{$this->container->get('prefix')}container", [ $this, 'get_container' ] );
 
-        $providers = array_map(function ($class) {
-            if(is_string($class)) {
-                return new $class;
-            }
+		$this->container->share( 'event_manager', $this->event_manager );
+		$this->container->share( 'dispatcher', $this->dispatcher );
 
-            return $class;
-        }, $providers);
+		$this->container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ $this->container->get( 'prefix' ) ] );
+		$this->container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $this->container->get( 'dispatcher' ) ] );
 
-        $providers = $this->optimize_service_providers( $providers );
+		$providers = array_map(
+			function ( $class ) {
+				if ( is_string( $class ) ) {
+					return new $class();
+				}
 
-        foreach ( $providers as $service_provider ) {
-            $this->container->addServiceProvider( $service_provider );
-        }
+				return $class;
+			},
+			$providers
+			);
 
-        foreach ( $providers as $service_provider ) {
-            if( ! $service_provider instanceof HasInflectorInterface ) {
-                continue;
-            }
-            $service_provider->register_inflectors();
-        }
+		$providers = $this->optimize_service_providers( $providers );
 
-        foreach ($providers as $service_provider ) {
-            $this->load_init_subscribers( $service_provider );
-        }
+		foreach ( $providers as $service_provider ) {
+			$this->container->addServiceProvider( $service_provider );
+		}
 
-        foreach ($providers as $service_provider ) {
-            $this->load_subscribers( $service_provider );
-        }
+		foreach ( $providers as $service_provider ) {
+			if ( ! $service_provider instanceof HasInflectorInterface ) {
+				continue;
+			}
+			$service_provider->register_inflectors();
+		}
 
-        /**
-         * Runs after the plugin is loaded.
-         */
-        do_action("{$this->container->get('prefix')}after_load");
-    }
+		foreach ( $providers as $service_provider ) {
+			$this->load_init_subscribers( $service_provider );
+		}
 
-    /**
-     * Optimize service providers to keep only the ones we need to load.
-     *
-     * @param ServiceProviderInterface[] $providers Providers given to the plugin.
-     *
-     * @return ServiceProviderInterface[]
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    protected function optimize_service_providers(array $providers): array {
-        $optimized_providers = [];
+		foreach ( $providers as $service_provider ) {
+			$this->load_subscribers( $service_provider );
+		}
 
-        foreach ($providers as $provider) {
-            if( ! $provider instanceof IsOptimizableServiceProvider ) {
-                $optimized_providers[] = $provider;
-                continue;
-            }
-            $subscribers = array_merge($provider->get_common_subscribers(), $provider->get_init_subscribers(), is_admin() ? $provider->get_admin_subscribers() : $provider->get_front_subscribers());
+		/**
+		 * Runs after the plugin is loaded.
+		 */
+		$this->dispatcher->do_action( "{$this->container->get('prefix')}after_load" );
+	}
 
-            /**
-             * Plugin Subscribers from a provider.
-             *
-             * @param SubscriberInterface[] $subscribers Subscribers.
-             * @param AbstractServiceProvider $provider Provider.
-             *
-             * @return SubscriberInterface[]
-             */
-            $subscribers = apply_filters("{$this->container->get('prefix')}load_provider_subscribers", $subscribers, $provider);
+	/**
+	 * Optimize service providers to keep only the ones we need to load.
+	 *
+	 * @param ServiceProviderInterface[] $providers Providers given to the plugin.
+	 *
+	 * @return ServiceProviderInterface[]
+	 *
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 */
+	protected function optimize_service_providers( array $providers ): array {
+		$optimized_providers = array();
 
-            if( count( $subscribers ) === 0 ) {
-                continue;
-            }
+		foreach ( $providers as $provider ) {
+			if ( ! $provider instanceof IsOptimizableServiceProvider ) {
+				$optimized_providers[] = $provider;
+				continue;
+			}
+			$subscribers = array_merge( $provider->get_common_subscribers(), $provider->get_init_subscribers(), is_admin() ? $provider->get_admin_subscribers() : $provider->get_front_subscribers() );
 
-            $optimized_providers[] = $provider;
-        }
+			/**
+			 * Plugin Subscribers from a provider.
+			 *
+			 * @param SubscriberInterface[] $subscribers Subscribers.
+			 * @param AbstractServiceProvider $provider Provider.
+			 *
+			 * @return SubscriberInterface[]
+			 */
+			$subscribers = $this->dispatcher->apply_filters( "{$this->container->get('prefix')}load_provider_subscribers", new SubscriberSignaturesSanitizer(), $subscribers, $provider );
 
-        return $optimized_providers;
-    }
+			if ( count( $subscribers ) === 0 ) {
+				continue;
+			}
 
-    /**
-     * Load list of event subscribers from service provider.
-     *
-     * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
-     *
-     * @return void
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws \ReflectionException
-     */
-    private function load_init_subscribers( ServiceProviderInterface $service_provider_instance ) {
-        $subscribers = $service_provider_instance->get_init_subscribers();
+			$optimized_providers[] = $provider;
+		}
 
-        /**
-         * Plugin Init Subscribers.
-         *
-         * @param SubscriberInterface[] $subscribers Subscribers.
-         *
-         * @return SubscriberInterface[]
-         */
-        $subscribers = apply_filters("{$this->container->get('prefix')}load_init_subscribers", $subscribers);
+		return $optimized_providers;
+	}
 
-        if ( empty( $subscribers ) ) {
-            return;
-        }
+	/**
+	 * Load list of event subscribers from service provider.
+	 *
+	 * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
+	 *
+	 * @return void
+	 *
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 * @throws \ReflectionException
+	 */
+	private function load_init_subscribers( ServiceProviderInterface $service_provider_instance ) {
+		$subscribers = $service_provider_instance->get_init_subscribers();
 
-        foreach ( $subscribers as $subscriber ) {
-            $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
-                $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
-            }
+		/**
+		 * Plugin Init Subscribers.
+		 *
+		 * @param SubscriberInterface[] $subscribers Subscribers.
+		 *
+		 * @return SubscriberInterface[]
+		 */
+		$subscribers = $this->dispatcher->apply_filters( "{$this->container->get('prefix')}load_init_subscribers", new SubscriberSignaturesSanitizer(), $subscribers );
 
-            $this->event_manager->add_subscriber( $subscriber_object );
-        }
-    }
+		if ( empty( $subscribers ) ) {
+			return;
+		}
 
-    /**
-     * Load list of event subscribers from service provider.
-     *
-     * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
-     *
-     * @return void
-     *
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws \ReflectionException
-     */
-    private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
+		foreach ( $subscribers as $subscriber ) {
+			$subscriber_object = $this->container->get( $subscriber );
+			if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
+				$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber_object );
+			}
 
-        $subscribers = $service_provider_instance->get_common_subscribers();
+			$this->event_manager->add_subscriber( $subscriber_object );
+		}
+	}
 
-        if( ! is_admin() ) {
-            $subscribers = array_merge($subscribers, $service_provider_instance->get_front_subscribers());
-        } else {
-            $subscribers = array_merge($subscribers, $service_provider_instance->get_admin_subscribers());
-        }
+	/**
+	 * Load list of event subscribers from service provider.
+	 *
+	 * @param ServiceProviderInterface $service_provider_instance Instance of service provider.
+	 *
+	 * @return void
+	 *
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 * @throws \ReflectionException
+	 */
+	private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
 
-        /**
-         * Plugin Subscribers.
-         *
-         * @param SubscriberInterface[] $subscribers Subscribers.
-         * @param AbstractServiceProvider $service_provider_instance Provider.
-         *
-         * @return SubscriberInterface[]
-         */
-        $subscribers = apply_filters( "{$this->container->get('prefix')}load_subscribers", $subscribers, $service_provider_instance );
+		$subscribers = $service_provider_instance->get_common_subscribers();
 
-        if ( empty( $subscribers ) ) {
-            return;
-        }
+		if ( ! is_admin() ) {
+			$subscribers = array_merge( $subscribers, $service_provider_instance->get_front_subscribers() );
+		} else {
+			$subscribers = array_merge( $subscribers, $service_provider_instance->get_admin_subscribers() );
+		}
 
-        foreach ( $subscribers as $subscriber ) {
-            $subscriber_object = $this->container->get( $subscriber );
-            if ( ! $subscriber_object instanceof OptimizedSubscriberInterface && ! $subscriber_object instanceof ClassicSubscriberInterface ) {
-                $subscriber_object = $this->subscriber_wrapper->wrap($subscriber_object);
-            }
+		/**
+		 * Plugin Subscribers.
+		 *
+		 * @param SubscriberInterface[] $subscribers Subscribers.
+		 * @param AbstractServiceProvider $service_provider_instance Provider.
+		 *
+		 * @return SubscriberInterface[]
+		 */
+		$subscribers = $this->dispatcher->apply_filters( "{$this->container->get('prefix')}load_subscribers", new SubscriberSignaturesSanitizer(), $subscribers, $service_provider_instance );
 
-            $this->event_manager->add_subscriber( $subscriber_object );
-        }
-    }
+		if ( empty( $subscribers ) ) {
+			return;
+		}
+
+		foreach ( $subscribers as $subscriber ) {
+			$subscriber_object = $this->container->get( $subscriber );
+			if ( ! $subscriber_object instanceof OptimizedSubscriberInterface && ! $subscriber_object instanceof ClassicSubscriberInterface ) {
+				$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber_object );
+			}
+
+			$this->event_manager->add_subscriber( $subscriber_object );
+		}
+	}
 }
