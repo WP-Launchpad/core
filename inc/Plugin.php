@@ -18,6 +18,7 @@ use LaunchpadCore\Container\ServiceProviderInterface;
 use LaunchpadCore\EventManagement\EventManager;
 use LaunchpadCore\EventManagement\SubscriberInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 
 class Plugin {
 
@@ -43,6 +44,8 @@ class Plugin {
 	private $subscriber_wrapper;
 
 	/**
+	 * Hook dispatcher.
+	 *
 	 * @var Dispatcher
 	 */
 	protected $dispatcher;
@@ -53,7 +56,7 @@ class Plugin {
 	 * @param ContainerInterface $container Instance of the container.
 	 * @param EventManager       $event_manager WordPress event manager.
 	 * @param SubscriberWrapper  $subscriber_wrapper Wraps subscriber under the common subscriber.
-	 * @param Dispatcher         $dispatcher
+	 * @param Dispatcher         $dispatcher Hook dispatcher.
 	 */
 	public function __construct( ContainerInterface $container, EventManager $event_manager, SubscriberWrapper $subscriber_wrapper, Dispatcher $dispatcher ) {
 		$this->container          = $container;
@@ -79,9 +82,9 @@ class Plugin {
 	 *
 	 * @return void
 	 *
-	 * @throws ContainerExceptionInterface
-	 * @throws NotFoundExceptionInterface
-	 * @throws \ReflectionException
+	 * @throws ContainerExceptionInterface Error from the container.
+	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
+	 * @throws ReflectionException Error when a classname is invalid.
 	 */
 	public function load( array $params, array $providers = [] ) {
 
@@ -103,12 +106,12 @@ class Plugin {
 		$this->container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $this->container->get( 'dispatcher' ) ] );
 
 		$providers = array_map(
-			function ( $class ) {
-				if ( is_string( $class ) ) {
-					return new $class();
+			function ( $classname ) {
+				if ( is_string( $classname ) ) {
+					return new $classname();
 				}
 
-				return $class;
+				return $classname;
 			},
 			$providers
 			);
@@ -147,11 +150,11 @@ class Plugin {
 	 *
 	 * @return ServiceProviderInterface[]
 	 *
-	 * @throws ContainerExceptionInterface
-	 * @throws NotFoundExceptionInterface
+	 * @throws ContainerExceptionInterface Error from the container.
+	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
 	 */
 	protected function optimize_service_providers( array $providers ): array {
-		$optimized_providers = array();
+		$optimized_providers = [];
 
 		foreach ( $providers as $provider ) {
 			if ( ! $provider instanceof IsOptimizableServiceProvider ) {
@@ -187,9 +190,9 @@ class Plugin {
 	 *
 	 * @return void
 	 *
-	 * @throws ContainerExceptionInterface
-	 * @throws NotFoundExceptionInterface
-	 * @throws \ReflectionException
+	 * @throws ContainerExceptionInterface Error from the container.
+	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
+	 * @throws ReflectionException Error when a classname is invalid.
 	 */
 	private function load_init_subscribers( ServiceProviderInterface $service_provider_instance ) {
 		$subscribers = $service_provider_instance->get_init_subscribers();
@@ -224,9 +227,9 @@ class Plugin {
 	 *
 	 * @return void
 	 *
-	 * @throws ContainerExceptionInterface
-	 * @throws NotFoundExceptionInterface
-	 * @throws \ReflectionException
+	 * @throws ContainerExceptionInterface Error from the container.
+	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
+	 * @throws ReflectionException Error when a classname is invalid.
 	 */
 	private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
 

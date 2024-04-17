@@ -6,34 +6,78 @@ use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
 use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
+use LaunchpadDispatcher\Dispatcher;
 use Psr\Container\ContainerInterface;
 
 class Deactivation {
 
+	/**
+	 * Service providers.
+	 *
+	 * @var array
+	 */
 	protected static $providers = [];
 
+	/**
+	 * Parameters.
+	 *
+	 * @var array
+	 */
 	protected static $params = [];
 
+	/**
+	 * Container.
+	 *
+	 * @var ContainerInterface
+	 */
 	protected static $container;
 
-    protected static $dispatcher;
+	/**
+	 * Hook dispatcher.
+	 *
+	 * @var Dispatcher
+	 */
+	protected static $dispatcher;
 
+	/**
+	 * Set service providers.
+	 *
+	 * @param array $providers Service providers.
+	 * @return void
+	 */
 	public static function set_providers( array $providers ) {
 		self::$providers = $providers;
 	}
 
+	/**
+	 * Set parameters.
+	 *
+	 * @param array $params Parameters.
+	 * @return void
+	 */
 	public static function set_params( array $params ) {
 		self::$params = $params;
 	}
 
+	/**
+	 * Set the container.
+	 *
+	 * @param ContainerInterface $container Container.
+	 * @return void
+	 */
 	public static function set_container( ContainerInterface $container ) {
 		self::$container = $container;
 	}
 
-    public static function setDispatcher($dispatcher): void
-    {
-        self::$dispatcher = $dispatcher;
-    }
+	/**
+	 * Set hook dispatcher.
+	 *
+	 * @param Dispatcher $dispatcher Hook dispatcher.
+	 * @return void
+	 */
+	public static function set_dispatcher( Dispatcher $dispatcher ): void {
+		self::$dispatcher = $dispatcher;
+	}
 
 	/**
 	 * Performs these actions during the plugin deactivation
@@ -48,10 +92,10 @@ class Deactivation {
 			$container->add( $key, $value );
 		}
 
-        $container->share( 'dispatcher', self::$dispatcher );
+		$container->share( 'dispatcher', self::$dispatcher );
 
-        $container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', array( key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ) );
-        $container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );
+		$container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ] );
+		$container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );
 
 		$providers = array_filter(
 			self::$providers,

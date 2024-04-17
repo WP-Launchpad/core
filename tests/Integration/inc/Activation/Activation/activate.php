@@ -28,7 +28,7 @@ class Test_activate extends TestCase {
         ];
 
         Activation::set_container($this->container);
-        Activation::setDispatcher(new Dispatcher());
+        Activation::set_dispatcher(new Dispatcher());
         Activation::set_params($params);
         Activation::set_providers([
             ServiceProvider::class

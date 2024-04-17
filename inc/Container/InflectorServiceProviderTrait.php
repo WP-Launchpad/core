@@ -42,5 +42,5 @@ trait InflectorServiceProviderTrait {
 	 *
 	 * @return Container
 	 */
-	abstract public function getLeagueContainer(): Container;
+	abstract public function getLeagueContainer(): Container; // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 }
