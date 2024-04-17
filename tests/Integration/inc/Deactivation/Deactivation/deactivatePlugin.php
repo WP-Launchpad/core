@@ -26,7 +26,7 @@ class Test_deactivatePlugin extends TestCase {
         ];
 
         Deactivation::set_container($this->container);
-        Deactivation::setDispatcher(new Dispatcher());
+        Deactivation::set_dispatcher(new Dispatcher());
         Deactivation::set_params($params);
         Deactivation::set_providers([
             ServiceProvider::class

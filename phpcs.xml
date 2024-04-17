@@ -30,7 +30,8 @@
         <exclude name="Squiz.Commenting.FileComment.MissingPackageTag"/>
         <exclude name="Squiz.PHP.CommentedOutCode.Found"/>
         <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax" />
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound" />
     </rule>
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>

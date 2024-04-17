@@ -1,6 +1,7 @@
 // directories
 tests export-ignore
 bin export-ignore
+.github export-ignore
 
 // files
 .gitattributes export-ignore

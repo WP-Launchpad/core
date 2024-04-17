@@ -44,9 +44,9 @@
         "test-integration": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --exclude-group AdminOnly",
         "test-integration-adminonly": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --group AdminOnly",
         "run-tests": [
-            "@test-unit"
-        ],
-        "test-integration-": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --group "
+            "@test-integration",
+            "@test-integration-adminonly"
+        ]
     },
     "config": {
         "allow-plugins": {
