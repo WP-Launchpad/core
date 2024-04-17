@@ -6,6 +6,7 @@ on:
       - trunk
       - develop
       - branch-*
+      - test/*
       - feature/*
       - enhancement/*
 
