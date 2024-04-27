@@ -78,20 +78,26 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
     /**
     * @param string $class
-    * @param callable(DefinitionInterface $class_defintion): void|null $method
-    * @return void
+    * @param callable(DefinitionInterface $class_definition): void|null $method
+    * @return Registration
     */
-    public function register_service(string $class, callable $method = null, string $concrete = '') {
+    public function register_service(string $class, callable $method = null, string $concrete = ''): Registration {
 
-        $this->services_to_load[] = [
-            'class' => $class,
-            'concrete' => $concrete,
-            'method' => $method
-        ];
+        $registration = new Registration($class);
+
+        $registration->set_definition($method);
+
+        if( $concrete) {
+            $registration->set_concrete($concrete);
+        }
+
+        $this->services_to_load[] = $registration;
 
         if( ! in_array( $class, $this->provides, true ) ) {
             $this->provides[] = $class;
         }
+
+        return $registration;
     }
 
     /**
@@ -107,15 +113,8 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
      */
     public function register()
     {
-        foreach ($this->services_to_load as $service) {
-            $class = '' === $service['concrete'] ? $service['class'] : $service['concrete'];
-            $class_registration = $this->getContainer()->add($service['class'], $class);
-
-            if( ! $service['method'] ) {
-                continue;
-            }
-
-            $service['method']($class_registration);
+        foreach ($this->services_to_load as $registration) {
+            $registration->register($this->getLeagueContainer());
         }
     }
 
