@@ -2,14 +2,22 @@
 
 namespace LaunchpadCore\Container;
 
-trait PrefixAware
-{
-    /**
-     * @var string
-     */
-    protected $prefix;
+trait PrefixAware {
 
-    public function set_prefix(string $prefix): void {
-        $this->prefix = $prefix;
-    }
+	/**
+	 * Plugin prefix.
+	 *
+	 * @var string
+	 */
+	protected $prefix;
+
+	/**
+	 * Set the plugin prefix.
+	 *
+	 * @param string $prefix Plugin prefix.
+	 * @return void
+	 */
+	public function set_prefix( string $prefix ): void {
+		$this->prefix = $prefix;
+	}
 }

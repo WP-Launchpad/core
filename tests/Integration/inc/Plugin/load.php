@@ -5,6 +5,7 @@ namespace LaunchpadCore\Tests\Integration\inc\Plugin;
 use LaunchpadCore\EventManagement\EventManager;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadCore\Plugin;
+use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
 use League\Container\Container;
 
@@ -12,11 +13,7 @@ use League\Container\Container;
  * @covers \LaunchpadCore\Plugin::load
  */
 class Test_load extends TestCase {
-
-    /**
-     * @var EventManager
-     */
-    protected $event_manager;
+    use SetupPluginTrait;
 
     public function testShouldDoAsExpected()
     {
@@ -43,13 +40,7 @@ class Test_load extends TestCase {
             $this->assertFalse($this->event_manager->has_callback($event), $event);
         }
 
-        $container = new Container();
-
-        $plugin = new Plugin($container, $this->event_manager, new SubscriberWrapper($prefix));
-        $plugin->load([
-            'prefix' => $prefix,
-            'version' => '3.16'
-        ], [
+        $this->setup_plugin($prefix, [
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\common\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,

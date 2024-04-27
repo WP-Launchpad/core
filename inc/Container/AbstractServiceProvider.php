@@ -9,114 +9,128 @@ use League\Container\ServiceProvider\AbstractServiceProvider as LeagueServicePro
 
 abstract class AbstractServiceProvider extends LeagueServiceProvider implements ServiceProviderInterface {
 
-    /**
-     * Services to load.
-     *
-     * @var array
-     */
-    protected $services_to_load = [];
+	/**
+	 * Services to load.
+	 *
+	 * @var array
+	 */
+	protected $services_to_load = [];
 
-    protected $loaded = false;
+	/**
+	 * Indicates if the service provider already loaded.
+	 *
+	 * @var bool
+	 */
+	protected $loaded = false;
 
-    /**
-     * Return IDs provided by the Service Provider.
-     *
-     * @return string[]
-     */
-    public function declares(): array {
-        return $this->provides;
-    }
+	/**
+	 * Return IDs provided by the Service Provider.
+	 *
+	 * @return string[]
+	 */
+	public function declares(): array {
+		return $this->provides;
+	}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function provides(string $alias): bool
-    {
-        if( ! $this->loaded ) {
-            $this->loaded = true;
-            $this->define();
+	/**
+	 * Returns a boolean if checking whether this provider provides a specific
+	 * service or returns an array of provided services if no argument passed.
+	 *
+	 * @param string $alias Class searched.
+	 *
+	 * @return boolean
+	 */
+	public function provides( string $alias ): bool {
+		if ( ! $this->loaded ) {
+			$this->loaded = true;
+			$this->define();
+		}
+
+		return parent::provides( $alias );
+	}
+
+	/**
+	 * Return IDs from front subscribers.
+	 *
+	 * @return string[]
+	 */
+	public function get_front_subscribers(): array {
+		return [];
+	}
+
+	/**
+	 * Return IDs from admin subscribers.
+	 *
+	 * @return string[]
+	 */
+	public function get_admin_subscribers(): array {
+		return [];
+	}
+
+	/**
+	 * Return IDs from common subscribers.
+	 *
+	 * @return string[]
+	 */
+	public function get_common_subscribers(): array {
+		return [];
+	}
+
+	/**
+	 * Return IDs from init subscribers.
+	 *
+	 * @return string[]
+	 */
+	public function get_init_subscribers(): array {
+		return [];
+	}
+
+	/**
+	 * Register service into the provider.
+	 *
+	 * @param string        $classname Class to register.
+	 * @param callable|null $method Method called when registering.
+	 * @param string        $concrete Concrete class when necessary.
+	 * @return Registration
+	 */
+	public function register_service( string $classname, callable $method = null, string $concrete = '' ): Registration {
+
+		$registration = new Registration( $classname );
+
+        if( $method ) {
+            $registration->set_definition( $method );
         }
 
-        return parent::provides($alias);
-    }
 
-    /**
-     * Return IDs from front subscribers.
-     *
-     * @return string[]
-     */
-    public function get_front_subscribers(): array {
-        return [];
-    }
 
-    /**
-     * Return IDs from admin subscribers.
-     *
-     * @return string[]
-     */
-    public function get_admin_subscribers(): array {
-        return [];
-    }
+		if ( $concrete ) {
+			$registration->set_concrete( $concrete );
+		}
 
-    /**
-     * Return IDs from common subscribers.
-     *
-     * @return string[]
-     */
-    public function get_common_subscribers(): array {
-        return [];
-    }
+		$this->services_to_load[] = $registration;
 
-    /**
-     * Return IDs from init subscribers.
-     *
-     * @return string[]
-     */
-    public function get_init_subscribers(): array {
-        return [];
-    }
+		if ( ! in_array( $classname, $this->provides, true ) ) {
+			$this->provides[] = $classname;
+		}
 
-    /**
-    * @param string $class
-    * @param callable(DefinitionInterface $class_defintion): void|null $method
-    * @return void
-    */
-    public function register_service(string $class, callable $method = null, string $concrete = '') {
+		return $registration;
+	}
 
-        $this->services_to_load[] = [
-            'class' => $class,
-            'concrete' => $concrete,
-            'method' => $method
-        ];
+	/**
+	 * Define classes.
+	 *
+	 * @return mixed
+	 */
+	abstract protected function define();
 
-        if( ! in_array( $class, $this->provides, true ) ) {
-            $this->provides[] = $class;
-        }
-    }
-
-    /**
-     * Define classes.
-     *
-     * @return mixed
-     */
-   abstract protected function define();
-
-    /**
-     * Register classes provided by the service provider.
-     * @return void
-     */
-    public function register()
-    {
-        foreach ($this->services_to_load as $service) {
-            $class = '' === $service['concrete'] ? $service['class'] : $service['concrete'];
-            $class_registration = $this->getContainer()->add($service['class'], $class);
-
-            if( ! $service['method'] ) {
-                continue;
-            }
-
-            $service['method']($class_registration);
-        }
-    }
-
+	/**
+	 * Register classes provided by the service provider.
+	 *
+	 * @return void
+	 */
+	public function register() {
+		foreach ( $this->services_to_load as $registration ) {
+			$registration->register( $this->getLeagueContainer() );
+		}
+	}
 }

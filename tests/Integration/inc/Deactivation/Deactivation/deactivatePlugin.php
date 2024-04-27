@@ -6,6 +6,7 @@ use LaunchpadCore\Deactivation\Deactivation;
 use LaunchpadCore\Tests\Integration\inc\Deactivation\Deactivation\classes\Deactivator;
 use LaunchpadCore\Tests\Integration\inc\Deactivation\Deactivation\classes\ServiceProvider;
 use LaunchpadCore\Tests\Integration\TestCase;
+use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 
 /**
@@ -25,6 +26,7 @@ class Test_deactivatePlugin extends TestCase {
         ];
 
         Deactivation::set_container($this->container);
+        Deactivation::set_dispatcher(new Dispatcher());
         Deactivation::set_params($params);
         Deactivation::set_providers([
             ServiceProvider::class

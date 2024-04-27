@@ -2,19 +2,19 @@
 
 namespace LaunchpadCore\Container;
 
-interface HasInflectorInterface
-{
-    /**
-     * Returns inflectors mapping.
-     *
-     * @return array<string,array>
-     */
-    public function get_inflectors(): array;
+interface HasInflectorInterface {
 
-    /**
-     * Register inflectors.
-     *
-     * @return void
-     */
-    public function register_inflectors(): void;
+	/**
+	 * Returns inflectors mapping.
+	 *
+	 * @return array<string,array>
+	 */
+	public function get_inflectors(): array;
+
+	/**
+	 * Register inflectors.
+	 *
+	 * @return void
+	 */
+	public function register_inflectors(): void;
 }

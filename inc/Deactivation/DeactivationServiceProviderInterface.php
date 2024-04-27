@@ -2,7 +2,7 @@
 
 namespace LaunchpadCore\Deactivation;
 
-interface DeactivationServiceProviderInterface
-{
+interface DeactivationServiceProviderInterface {
+
 
 }

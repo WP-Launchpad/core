@@ -21,8 +21,9 @@
         }
     },
     "require": {
-        "php": ">=7.0",
-        "league/container": "^3.3"
+        "php": ">=7.1",
+        "league/container": "^3.3",
+        "wp-launchpad/dispatcher": "^1.0"
     },
     "require-dev": {
         "wp-media/phpunit": "^3.0",
@@ -43,9 +44,9 @@
         "test-integration": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --exclude-group AdminOnly",
         "test-integration-adminonly": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --group AdminOnly",
         "run-tests": [
-            "@test-unit"
-        ],
-        "test-integration-": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration tests/Integration/phpunit.xml.dist --group "
+            "@test-integration",
+            "@test-integration-adminonly"
+        ]
     },
     "config": {
         "allow-plugins": {
