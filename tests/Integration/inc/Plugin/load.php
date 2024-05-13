@@ -28,6 +28,7 @@ class Test_load extends TestCase {
             'optimize_init',
             'classic_hook',
             'root_hook',
+            'optimize_hook',
         ];
 
         $event_not_setup = [

@@ -257,7 +257,7 @@ class Plugin {
 
 		foreach ( $subscribers as $subscriber ) {
 			$subscriber_object = $this->container->get( $subscriber );
-			if ( ! $subscriber_object instanceof OptimizedSubscriberInterface && ! $subscriber_object instanceof ClassicSubscriberInterface ) {
+			if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
 				$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber_object );
 			}
 
