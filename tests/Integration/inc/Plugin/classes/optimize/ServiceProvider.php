@@ -12,13 +12,21 @@ class ServiceProvider extends AbstractServiceProvider
      */
     protected function define()
     {
+        $this->register_service(InitSubscriber::class);
         $this->register_service(Subscriber::class);
     }
 
     public function get_init_subscribers(): array
     {
         return [
-            Subscriber::class
+            InitSubscriber::class
+        ];
+    }
+
+    public function get_common_subscribers(): array
+    {
+        return [
+            Subscriber::class,
         ];
     }
 }
