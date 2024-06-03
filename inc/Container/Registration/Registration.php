@@ -1,9 +1,8 @@
 <?php
 
-namespace LaunchpadCore\Container;
+namespace LaunchpadCore\Container\Registration;
 
 use League\Container\Container;
-use League\Container\Definition\DefinitionInterface;
 
 class Registration {
 

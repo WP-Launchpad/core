@@ -2,9 +2,8 @@
 
 namespace LaunchpadCore\Container;
 
-use League\Container\Container;
-use League\Container\ContainerAwareInterface;
-use League\Container\Definition\DefinitionInterface;
+use LaunchpadCore\Container\Registration\Registration;
+use LaunchpadCore\Container\Registration\SubscriberRegistration;
 use League\Container\ServiceProvider\AbstractServiceProvider as LeagueServiceProvider;
 
 abstract class AbstractServiceProvider extends LeagueServiceProvider implements ServiceProviderInterface {
@@ -115,6 +114,34 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		return $registration;
 	}
+
+    protected function register_subscriber(string $classname, string $type): Registration
+    {
+        $registration = new SubscriberRegistration($classname, $type);
+
+        $this->services_to_load[] = $registration;
+
+        if ( ! in_array( $classname, $this->provides, true ) ) {
+            $this->provides[] = $classname;
+        }
+
+        return $registration;
+    }
+
+    public function register_admin_subscriber(string $classname): Registration
+    {
+        return $this->register_subscriber($classname, 'admin');
+    }
+
+    public function register_front_subscriber(string $classname): Registration
+    {
+        return $this->register_subscriber($classname, 'front');
+    }
+
+    public function register_common_subscriber(string $classname): Registration
+    {
+        return $this->register_subscriber($classname, 'common');
+    }
 
 	/**
 	 * Define classes.
