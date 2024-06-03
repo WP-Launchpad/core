@@ -91,4 +91,9 @@ class Registration {
 
 		( $this->definition )( $class_registration );
 	}
+
+    public function get_id(): string
+    {
+        return $this->id;
+    }
 }
