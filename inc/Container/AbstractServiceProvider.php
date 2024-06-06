@@ -120,6 +120,13 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		return $registration;
 	}
 
+    /**
+     * Register a subscriber.
+     *
+     * @param string $classname Classname from the subscriber.
+     * @param string $type Type of the subscriber.
+     * @return SubscriberRegistration
+     */
     protected function register_subscriber(string $classname, string $type): SubscriberRegistration
     {
         $registration = new SubscriberRegistration($classname, $type);
@@ -133,21 +140,45 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
         return $registration;
     }
 
+    /**
+     * Register an admin subscriber.
+     *
+     * @param string $classname Classname from the subscriber.
+     * @return SubscriberRegistration
+     */
     public function register_admin_subscriber(string $classname): SubscriberRegistration
     {
         return $this->register_subscriber($classname, 'admin');
     }
 
+    /**
+     * Register a front subscriber.
+     *
+     * @param string $classname Classname from the subscriber.
+     * @return SubscriberRegistration
+     */
     public function register_front_subscriber(string $classname): SubscriberRegistration
     {
         return $this->register_subscriber($classname, 'front');
     }
 
+    /**
+     * Register a common subscriber.
+     *
+     * @param string $classname Classname from the subscriber.
+     * @return SubscriberRegistration
+     */
     public function register_common_subscriber(string $classname): SubscriberRegistration
     {
         return $this->register_subscriber($classname, 'common');
     }
 
+    /**
+     * Register an init subscriber.
+     *
+     * @param string $classname Classname from the subscriber?
+     * @return SubscriberRegistration
+     */
     public function register_init_subscriber(string $classname): SubscriberRegistration
     {
         return $this->register_subscriber($classname, 'init');
@@ -171,6 +202,11 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		}
 	}
 
+    /**
+     * Loads definitions.
+     *
+     * @return void
+     */
     protected function load()
     {
         if ( $this->loaded ) {
@@ -181,6 +217,12 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
         $this->define();
     }
 
+    /**
+     * Fetch subscribers by type.
+     *
+     * @param string $type Type of subscriber.
+     * @return array
+     */
     protected function fetch_subscribers_by_type(string $type): array
     {
         $subscribers = [];

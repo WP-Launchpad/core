@@ -92,6 +92,11 @@ class Registration {
 		( $this->definition )( $class_registration );
 	}
 
+    /**
+     * Get id from the container.
+     *
+     * @return string
+     */
     public function get_id(): string
     {
         return $this->id;
