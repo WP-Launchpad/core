@@ -32,6 +32,7 @@ class Test_load extends TestCase {
             'method_registration_common_hook',
             'method_registration_front_hook',
             'method_registration_init_hook',
+            'optimize_hook',
         ];
 
         $event_not_setup = [
