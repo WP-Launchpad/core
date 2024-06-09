@@ -100,9 +100,9 @@ class Plugin {
 		add_filter( "{$this->container->get('prefix')}container", [ $this, 'get_container' ] );
 
 		$this->container->share( 'event_manager', $this->event_manager );
-        $this->container->share( EventManager::class, $this->event_manager );
-        $this->container->share( 'dispatcher', $this->dispatcher );
-        $this->container->share(Dispatcher::class, $this->dispatcher);
+		$this->container->share( EventManager::class, $this->event_manager );
+		$this->container->share( 'dispatcher', $this->dispatcher );
+		$this->container->share( Dispatcher::class, $this->dispatcher );
 
 		$this->container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ $this->container->get( 'prefix' ) ] );
 		$this->container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $this->container->get( 'dispatcher' ) ] );
