@@ -7,6 +7,7 @@ use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadCore\Plugin;
 use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
+use LaunchpadDispatcher\Dispatcher;
 use League\Container\Container;
 
 /**
@@ -75,6 +76,17 @@ class Test_load extends TestCase {
 
         foreach ($filters as $filter) {
             did_filter($filter);
+        }
+
+        $services = [
+            Dispatcher::class => Dispatcher::class,
+            'dispatcher' => Dispatcher::class,
+            EventManager::class => EventManager::class,
+            'event_manager' => EventManager::class,
+        ];
+
+        foreach ($services as $key => $class) {
+            $this->assertInstanceOf($class, $this->container->get($key));
         }
     }
 }
