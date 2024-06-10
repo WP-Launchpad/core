@@ -97,11 +97,9 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		$registration = new Registration( $classname );
 
-        if( $method ) {
-            $registration->set_definition( $method );
-        }
-
-
+		if ( $method ) {
+			$registration->set_definition( $method );
+		}
 
 		if ( $concrete ) {
 			$registration->set_concrete( $concrete );
