@@ -1,6 +1,6 @@
 <?php
 
-namespace LaunchpadCore\Tests\Integration\inc\boot\files\inc;
+namespace LaunchpadCore\Tests\Fixtures\inc\boot\files\inc;
 
 use LaunchpadCore\Activation\ActivationServiceProviderInterface;
 use LaunchpadCore\Container\AbstractServiceProvider;

@@ -45,6 +45,15 @@ class Registration {
 	}
 
 	/**
+	 * Returns if the registration has a definition
+	 *
+	 * @return bool
+	 */
+	public function has_definition(): bool {
+		return (bool) $this->definition;
+	}
+
+	/**
 	 * Define a callback definition for the class.
 	 *
 	 * @param callable $definition Callback definition for the class.

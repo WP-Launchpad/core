@@ -21,13 +21,15 @@ Test_deactivate extends TestCase
         parent::tear_down();
     }
 
-    public function testShouldDoAsExpected()
+    /**
+     * @dataProvider configTestData
+     */
+    public function testShouldDoAsExpected($config, $expected)
     {
         require_once LAUNCHPAD_PLUGIN_ROOT . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'boot.php';
-        $plugin_path = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'plugin.php';
-        boot($plugin_path);
+        boot($config['plugin']);
 
-        $activate_plugin_path = ltrim( $plugin_path, DIRECTORY_SEPARATOR);
+        $activate_plugin_path = ltrim( $config['plugin'], DIRECTORY_SEPARATOR);
         do_action("deactivate_{$activate_plugin_path}");
 
         $this->assertFalse(get_option('demo_option', false), "option should be unregistered");

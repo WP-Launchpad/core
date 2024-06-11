@@ -8,6 +8,7 @@ use League\Container\Container;
 use LaunchpadCore\Activation\Activation;
 use LaunchpadCore\Deactivation\Deactivation;
 use LaunchpadCore\EventManagement\EventManager;
+use League\Container\ReflectionContainer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,6 +70,11 @@ function boot( string $plugin_launcher_file ) {
 			$prefix = key_exists( 'prefix', $params ) ? $params['prefix'] : '';
 
 			$container = new Container();
+
+			if ( key_exists( 'autowiring', $params ) && $params['autowiring'] ) {
+				$reflection_container = new ReflectionContainer();
+				$container->delegate( $reflection_container );
+			}
 
 			$dispatcher = new Dispatcher();
 

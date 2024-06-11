@@ -11,7 +11,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	/**
 	 * Services to load.
 	 *
-	 * @var array
+	 * @var Registration[]
 	 */
 	protected $services_to_load = [];
 
@@ -191,6 +191,11 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 */
 	public function register() {
 		foreach ( $this->services_to_load as $registration ) {
+
+            if ( $this->getLeagueContainer()->has('autowiring') && $this->getLeagueContainer()->get('autowiring') && ! $registration->has_definition() ) {
+                continue;
+            }
+
 			$registration->register( $this->getLeagueContainer() );
 		}
 	}
