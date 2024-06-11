@@ -40,7 +40,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 * @return boolean
 	 */
 	public function provides( string $alias ): bool {
-        $this->load();
+		$this->load();
 
 		return parent::provides( $alias );
 	}
@@ -51,9 +51,9 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 * @return string[]
 	 */
 	public function get_front_subscribers(): array {
-        $this->load();
+		$this->load();
 
-        return $this->fetch_subscribers_by_type('front');
+		return $this->fetch_subscribers_by_type( 'front' );
 	}
 
 	/**
@@ -62,9 +62,9 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 * @return string[]
 	 */
 	public function get_admin_subscribers(): array {
-        $this->load();
+		$this->load();
 
-        return $this->fetch_subscribers_by_type('admin');
+		return $this->fetch_subscribers_by_type( 'admin' );
 	}
 
 	/**
@@ -73,9 +73,9 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 * @return string[]
 	 */
 	public function get_common_subscribers(): array {
-        $this->load();
+		$this->load();
 
-		return $this->fetch_subscribers_by_type('common');
+		return $this->fetch_subscribers_by_type( 'common' );
 	}
 
 	/**
@@ -84,10 +84,10 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 * @return string[]
 	 */
 	public function get_init_subscribers(): array {
-        $this->load();
+		$this->load();
 
-        return $this->fetch_subscribers_by_type('init');
-    }
+		return $this->fetch_subscribers_by_type( 'init' );
+	}
 
 	/**
 	 * Register service into the provider.
@@ -101,11 +101,9 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		$registration = new Registration( $classname );
 
-        if( $method ) {
-            $registration->set_definition( $method );
-        }
-
-
+		if ( $method ) {
+			$registration->set_definition( $method );
+		}
 
 		if ( $concrete ) {
 			$registration->set_concrete( $concrete );
@@ -120,69 +118,64 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		return $registration;
 	}
 
-    /**
-     * Register a subscriber.
-     *
-     * @param string $classname Classname from the subscriber.
-     * @param string $type Type of the subscriber.
-     * @return SubscriberRegistration
-     */
-    protected function register_subscriber(string $classname, string $type): SubscriberRegistration
-    {
-        $registration = new SubscriberRegistration($classname, $type);
+	/**
+	 * Register a subscriber.
+	 *
+	 * @param string $classname Classname from the subscriber.
+	 * @param string $type Type of the subscriber.
+	 * @return SubscriberRegistration
+	 */
+	protected function register_subscriber( string $classname, string $type ): SubscriberRegistration {
+		$registration = new SubscriberRegistration( $classname, $type );
 
-        $this->services_to_load[] = $registration;
+		$this->services_to_load[] = $registration;
 
-        if ( ! in_array( $classname, $this->provides, true ) ) {
-            $this->provides[] = $classname;
-        }
+		if ( ! in_array( $classname, $this->provides, true ) ) {
+			$this->provides[] = $classname;
+		}
 
-        return $registration;
-    }
+		return $registration;
+	}
 
-    /**
-     * Register an admin subscriber.
-     *
-     * @param string $classname Classname from the subscriber.
-     * @return SubscriberRegistration
-     */
-    public function register_admin_subscriber(string $classname): SubscriberRegistration
-    {
-        return $this->register_subscriber($classname, 'admin');
-    }
+	/**
+	 * Register an admin subscriber.
+	 *
+	 * @param string $classname Classname from the subscriber.
+	 * @return SubscriberRegistration
+	 */
+	public function register_admin_subscriber( string $classname ): SubscriberRegistration {
+		return $this->register_subscriber( $classname, 'admin' );
+	}
 
-    /**
-     * Register a front subscriber.
-     *
-     * @param string $classname Classname from the subscriber.
-     * @return SubscriberRegistration
-     */
-    public function register_front_subscriber(string $classname): SubscriberRegistration
-    {
-        return $this->register_subscriber($classname, 'front');
-    }
+	/**
+	 * Register a front subscriber.
+	 *
+	 * @param string $classname Classname from the subscriber.
+	 * @return SubscriberRegistration
+	 */
+	public function register_front_subscriber( string $classname ): SubscriberRegistration {
+		return $this->register_subscriber( $classname, 'front' );
+	}
 
-    /**
-     * Register a common subscriber.
-     *
-     * @param string $classname Classname from the subscriber.
-     * @return SubscriberRegistration
-     */
-    public function register_common_subscriber(string $classname): SubscriberRegistration
-    {
-        return $this->register_subscriber($classname, 'common');
-    }
+	/**
+	 * Register a common subscriber.
+	 *
+	 * @param string $classname Classname from the subscriber.
+	 * @return SubscriberRegistration
+	 */
+	public function register_common_subscriber( string $classname ): SubscriberRegistration {
+		return $this->register_subscriber( $classname, 'common' );
+	}
 
-    /**
-     * Register an init subscriber.
-     *
-     * @param string $classname Classname from the subscriber?
-     * @return SubscriberRegistration
-     */
-    public function register_init_subscriber(string $classname): SubscriberRegistration
-    {
-        return $this->register_subscriber($classname, 'init');
-    }
+	/**
+	 * Register an init subscriber.
+	 *
+	 * @param string $classname Classname from the subscriber.
+	 * @return SubscriberRegistration
+	 */
+	public function register_init_subscriber( string $classname ): SubscriberRegistration {
+		return $this->register_subscriber( $classname, 'init' );
+	}
 
 	/**
 	 * Define classes.
@@ -202,43 +195,41 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		}
 	}
 
-    /**
-     * Loads definitions.
-     *
-     * @return void
-     */
-    protected function load()
-    {
-        if ( $this->loaded ) {
-            return;
-        }
+	/**
+	 * Loads definitions.
+	 *
+	 * @return void
+	 */
+	protected function load() {
+		if ( $this->loaded ) {
+			return;
+		}
 
-        $this->loaded = true;
-        $this->define();
-    }
+		$this->loaded = true;
+		$this->define();
+	}
 
-    /**
-     * Fetch subscribers by type.
-     *
-     * @param string $type Type of subscriber.
-     * @return array
-     */
-    protected function fetch_subscribers_by_type(string $type): array
-    {
-        $subscribers = [];
+	/**
+	 * Fetch subscribers by type.
+	 *
+	 * @param string $type Type of subscriber.
+	 * @return array
+	 */
+	protected function fetch_subscribers_by_type( string $type ): array {
+		$subscribers = [];
 
-        foreach ($this->services_to_load as $service) {
-            if( ! $service instanceof SubscriberRegistration) {
-                continue;
-            }
+		foreach ( $this->services_to_load as $service ) {
+			if ( ! $service instanceof SubscriberRegistration ) {
+				continue;
+			}
 
-            if( $type !== $service->get_type()) {
-                continue;
-            }
+			if ( $type !== $service->get_type() ) {
+				continue;
+			}
 
-            $subscribers []= $service->get_id();
-        }
+			$subscribers [] = $service->get_id();
+		}
 
-        return $subscribers;
-    }
+		return $subscribers;
+	}
 }

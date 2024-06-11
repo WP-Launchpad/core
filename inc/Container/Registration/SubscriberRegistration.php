@@ -4,32 +4,32 @@ namespace LaunchpadCore\Container\Registration;
 
 use LaunchpadCore\Container\Registration\Registration;
 
-class SubscriberRegistration extends Registration
-{
-    /**
-     * Type of subscriber.
-     *
-     * @var string
-     */
-    protected $type;
+class SubscriberRegistration extends Registration {
 
-    /**
-     * Instantiate the class.
-     *
-     * @param string $type
-     */
-    public function __construct(string $id, string $type)
-    {
-        parent::__construct( $id );
-        $this->type = $type;
-    }
+	/**
+	 * Type of subscriber.
+	 *
+	 * @var string
+	 */
+	protected $type;
 
-    /**
-     * Get the type of subscriber.
-     * @return string
-     */
-    public function get_type(): string
-    {
-        return $this->type;
-    }
+	/**
+	 * Instantiate the class.
+	 *
+	 * @param string $id Id from the class.
+	 * @param string $type Type from the subscriber.
+	 */
+	public function __construct( string $id, string $type ) {
+		parent::__construct( $id );
+		$this->type = $type;
+	}
+
+	/**
+	 * Get the type of subscriber.
+	 *
+	 * @return string
+	 */
+	public function get_type(): string {
+		return $this->type;
+	}
 }
