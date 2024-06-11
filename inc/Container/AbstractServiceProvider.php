@@ -111,10 +111,6 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		$this->services_to_load[] = $registration;
 
-		if ( ! in_array( $classname, $this->provides, true ) ) {
-			$this->provides[] = $classname;
-		}
-
 		return $registration;
 	}
 
@@ -192,9 +188,12 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	public function register() {
 		foreach ( $this->services_to_load as $registration ) {
 
-            if ( $this->getLeagueContainer()->has('autowiring') && $this->getLeagueContainer()->get('autowiring') && ! $registration->has_definition() ) {
-                continue;
-            }
+			if (
+                $registration instanceof SubscriberRegistration
+				&& $registration->is_autowire()
+			) {
+				continue;
+			}
 
 			$registration->register( $this->getLeagueContainer() );
 		}
@@ -212,6 +211,22 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		$this->loaded = true;
 		$this->define();
+		$this->generate_provides();
+	}
+
+	protected function generate_provides() {
+
+		$this->provides = [];
+
+		foreach ( $this->services_to_load as $service ) {
+			if ( $service instanceof SubscriberRegistration && $service->is_autowire() ) {
+				continue;
+			}
+
+			if ( ! in_array( $service->get_id(), $this->provides, true ) ) {
+				$this->provides[] = $service->get_id();
+			}
+		}
 	}
 
 	/**

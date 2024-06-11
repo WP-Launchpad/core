@@ -14,6 +14,13 @@ class SubscriberRegistration extends Registration {
 	protected $type;
 
 	/**
+	 * Autowire arguments.
+	 *
+	 * @var bool
+	 */
+	protected $autowire = false;
+
+	/**
 	 * Instantiate the class.
 	 *
 	 * @param string $id Id from the class.
@@ -31,5 +38,13 @@ class SubscriberRegistration extends Registration {
 	 */
 	public function get_type(): string {
 		return $this->type;
+	}
+
+	public function autowire(): void {
+		$this->autowire = true;
+	}
+
+	public function is_autowire(): bool {
+		return $this->autowire;
 	}
 }
