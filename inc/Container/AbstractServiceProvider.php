@@ -126,10 +126,6 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		$this->services_to_load[] = $registration;
 
-		if ( ! in_array( $classname, $this->provides, true ) ) {
-			$this->provides[] = $classname;
-		}
-
 		return $registration;
 	}
 
