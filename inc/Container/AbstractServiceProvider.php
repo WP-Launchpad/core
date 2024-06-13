@@ -185,7 +185,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		foreach ( $this->services_to_load as $registration ) {
 
 			if (
-                $registration instanceof SubscriberRegistration
+				$registration instanceof SubscriberRegistration
 				&& $registration->is_autowire()
 			) {
 				continue;
