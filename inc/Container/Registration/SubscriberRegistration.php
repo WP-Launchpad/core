@@ -2,24 +2,19 @@
 
 namespace LaunchpadCore\Container\Registration;
 
-use LaunchpadCore\Container\Registration\Registration;
+use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareInterface;
+use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareTrait;
 
-class SubscriberRegistration extends Registration {
-
+class SubscriberRegistration extends Registration implements AutowireAwareInterface {
+    use AutowireAwareTrait;
+    
 	/**
 	 * Type of subscriber.
 	 *
 	 * @var string
 	 */
 	protected $type;
-
-	/**
-	 * Autowire arguments.
-	 *
-	 * @var bool
-	 */
-	protected $autowire = false;
-
+    
 	/**
 	 * Instantiate the class.
 	 *
@@ -38,23 +33,5 @@ class SubscriberRegistration extends Registration {
 	 */
 	public function get_type(): string {
 		return $this->type;
-	}
-
-	/**
-	 * Autowire arguments from the subscriber. (Works only if the autowiring is enabled on the project)
-	 *
-	 * @return void
-	 */
-	public function autowire(): void {
-		$this->autowire = true;
-	}
-
-	/**
-	 * Are arguments from the subscriber autowired.
-	 *
-	 * @return bool
-	 */
-	public function is_autowire(): bool {
-		return $this->autowire;
 	}
 }

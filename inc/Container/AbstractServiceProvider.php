@@ -2,6 +2,9 @@
 
 namespace LaunchpadCore\Container;
 
+use LaunchpadCore\Container\Registration\ActivatorRegistration;
+use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareInterface;
+use LaunchpadCore\Container\Registration\DeactivatorRegistration;
 use LaunchpadCore\Container\Registration\Registration;
 use LaunchpadCore\Container\Registration\SubscriberRegistration;
 use League\Container\ServiceProvider\AbstractServiceProvider as LeagueServiceProvider;
@@ -169,6 +172,21 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		return $this->register_subscriber( $classname, 'init' );
 	}
 
+    /**
+     * Register deactivator.
+     *
+     * @param string $classname Classname from the deactivator.
+     * @return DeactivatorRegistration
+     */
+    public function register_deactivator( string $classname ): DeactivatorRegistration
+    {
+        $registration = new DeactivatorRegistration($classname);
+
+        $this->services_to_load[] = $registration;
+
+        return $registration;
+    }
+
 	/**
 	 * Define classes.
 	 *
@@ -185,7 +203,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		foreach ( $this->services_to_load as $registration ) {
 
 			if (
-				$registration instanceof SubscriberRegistration
+				$registration instanceof AutowireAwareInterface
 				&& $registration->is_autowire()
 			) {
 				continue;
@@ -215,7 +233,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		$this->provides = [];
 
 		foreach ( $this->services_to_load as $service ) {
-			if ( $service instanceof SubscriberRegistration && $service->is_autowire() ) {
+			if ( $service instanceof AutowireAwareInterface && $service->is_autowire() ) {
 				continue;
 			}
 
@@ -248,4 +266,14 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 
 		return $subscribers;
 	}
+
+    protected function get_services_to_load(): array
+    {
+        return $this->services_to_load;
+    }
+
+    protected function add_service_to_load(Registration $registration): void
+    {
+        $this->services_to_load [] = $registration;
+    }
 }
