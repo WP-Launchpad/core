@@ -40,10 +40,20 @@ class SubscriberRegistration extends Registration {
 		return $this->type;
 	}
 
+	/**
+	 * Autowire arguments from the subscriber. (Works only if the autowiring is enabled on the project)
+	 *
+	 * @return void
+	 */
 	public function autowire(): void {
 		$this->autowire = true;
 	}
 
+	/**
+	 * Are arguments from the subscriber autowired.
+	 *
+	 * @return bool
+	 */
 	public function is_autowire(): bool {
 		return $this->autowire;
 	}
