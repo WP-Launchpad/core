@@ -16,5 +16,13 @@ return [
         'expected' => [
 
         ]
+    ],
+    'inflector' => [
+        'config' => [
+            'plugin' => __DIR__ . DIRECTORY_SEPARATOR . 'inflector' . DIRECTORY_SEPARATOR . 'plugin.php',
+        ],
+        'expected' => [
+
+        ]
     ]
 ];
