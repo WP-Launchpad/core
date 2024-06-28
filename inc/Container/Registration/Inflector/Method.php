@@ -2,39 +2,35 @@
 
 namespace LaunchpadCore\Container\Registration\Inflector;
 
-class Method
-{
-    /**
-     * @var string
-     */
-    protected $name = '';
+class Method {
 
-    /**
-     * @var array
-     */
-    protected $parameters = [];
+	/**
+	 * @var string
+	 */
+	protected $name = '';
 
-    /**
-     * @param string $name
-     */
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
+	/**
+	 * @var array
+	 */
+	protected $parameters = [];
 
-    public function set_parameters(array $parameters): self
-    {
-        $this->parameters = $parameters;
-        return $this;
-    }
+	/**
+	 * @param string $name
+	 */
+	public function __construct( string $name ) {
+		$this->name = $name;
+	}
 
-    public function get_name(): string
-    {
-        return $this->name;
-    }
+	public function set_parameters( array $parameters ): self {
+		$this->parameters = $parameters;
+		return $this;
+	}
 
-    public function get_parameters(): array
-    {
-        return $this->parameters;
-    }
+	public function get_name(): string {
+		return $this->name;
+	}
+
+	public function get_parameters(): array {
+		return $this->parameters;
+	}
 }

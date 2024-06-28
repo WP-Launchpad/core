@@ -2,36 +2,32 @@
 
 namespace LaunchpadCore\Container\Registration\Inflector;
 
-class Property
-{
-    /**
-     * @var string
-     */
-    protected $name = '';
+class Property {
 
-    protected $value;
+	/**
+	 * @var string
+	 */
+	protected $name = '';
 
-    /**
-     * @param string $name
-     * @param $value
-     */
-    public function __construct(string $name, $value)
-    {
-        $this->name = $name;
-        $this->value = $value;
-    }
+	protected $value;
 
-    public function get_name(): string
-    {
-        return $this->name;
-    }
+	/**
+	 * @param string $name
+	 * @param $value
+	 */
+	public function __construct( string $name, $value ) {
+		$this->name  = $name;
+		$this->value = $value;
+	}
 
-    /**
-     * @return mixed
-     */
-    public function get_value()
-    {
-        return $this->value;
-    }
+	public function get_name(): string {
+		return $this->name;
+	}
 
+	/**
+	 * @return mixed
+	 */
+	public function get_value() {
+		return $this->value;
+	}
 }

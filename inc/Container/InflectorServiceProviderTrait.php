@@ -7,11 +7,11 @@ use League\Container\Container;
 
 trait InflectorServiceProviderTrait {
 
-    /**
-     * List of inflectors.
-     *
-     * @var InflectorRegistration[]
-     */
+	/**
+	 * List of inflectors.
+	 *
+	 * @var InflectorRegistration[]
+	 */
 	protected $inflectors = [];
 	/**
 	 * Returns inflectors mapping.
@@ -19,7 +19,7 @@ trait InflectorServiceProviderTrait {
 	 * @return array<string,array>
 	 */
 	public function get_inflectors(): array {
-        $this->load();
+		$this->load();
 		return $this->inflectors;
 	}
 
@@ -72,10 +72,10 @@ trait InflectorServiceProviderTrait {
 	 */
 	abstract public function getLeagueContainer(): Container; // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 
-    /**
-     * Loads definitions.
-     *
-     * @return void
-     */
-    abstract protected function load();
+	/**
+	 * Loads definitions.
+	 *
+	 * @return void
+	 */
+	abstract protected function load();
 }

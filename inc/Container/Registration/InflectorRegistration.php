@@ -6,63 +6,60 @@ use LaunchpadCore\Container\Registration\Inflector\Method;
 use LaunchpadCore\Container\Registration\Inflector\Property;
 use League\Container\Container;
 
-class InflectorRegistration
-{
-    /**
-     * @var string
-     */
-    protected $interface = '';
+class InflectorRegistration {
 
-    /**
-     * @var Method[]
-     */
-    protected $methods = [];
+	/**
+	 * @var string
+	 */
+	protected $interface = '';
 
-    /**
-     * @var Property[]
-     */
-    protected $properties = [];
+	/**
+	 * @var Method[]
+	 */
+	protected $methods = [];
 
-    /**
-     * @param string $interface
-     */
-    public function __construct(string $interface)
-    {
-        $this->interface = $interface;
-    }
+	/**
+	 * @var Property[]
+	 */
+	protected $properties = [];
 
-    public function add_method(string $method, array $paramters = []): self
-    {
-        $method = new Method($method);
-        $method->set_parameters($paramters);
-        $this->methods [] = $method;
-        return $this;
-    }
+	/**
+	 * @param string $interface
+	 */
+	public function __construct( string $interface ) {
+		$this->interface = $interface;
+	}
 
-    public function add_property($name, $value): self
-    {
-        $property = new Property($name, $value);
+	public function add_method( string $method, array $paramters = [] ): self {
+		$method = new Method( $method );
+		$method->set_parameters( $paramters );
+		$this->methods [] = $method;
+		return $this;
+	}
 
-        $this->properties [] = $property;
+	public function add_property( $name, $value ): self {
+		$property = new Property( $name, $value );
 
-        return $this;
-    }
+		$this->properties [] = $property;
 
-    /**
-     * Register a definition on a container.
-     *
-     * @param Container $container Container to register on.
-     * @return void
-     */
-    public function register( Container $container ) {
-        $inflector = $container->inflector($this->interface);
+		return $this;
+	}
 
-        foreach ($this->methods as $method) {
-            $inflector->invokeMethod($method->get_name(), $method->get_parameters());
-        }
+	/**
+	 * Register a definition on a container.
+	 *
+	 * @param Container $container Container to register on.
+	 * @return void
+	 */
+	public function register( Container $container ) {
+		$inflector = $container->inflector( $this->interface );
 
-        foreach ($this->properties as $property) {
-            $inflector->setProperty($property->get_name(), $property->get_value());
-        }
-    }
+		foreach ( $this->methods as $method ) {
+			$inflector->invokeMethod( $method->get_name(), $method->get_parameters() );
+		}
+
+		foreach ( $this->properties as $property ) {
+			$inflector->setProperty( $property->get_name(), $property->get_value() );
+		}
+	}
 }
