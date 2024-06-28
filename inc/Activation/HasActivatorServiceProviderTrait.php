@@ -5,55 +5,62 @@ namespace LaunchpadCore\Activation;
 use LaunchpadCore\Container\Registration\ActivatorRegistration;
 use LaunchpadCore\Container\Registration\Registration;
 
-trait HasActivatorServiceProviderTrait
-{
-    /**
-     * Returns list of activators.
-     *
-     * @return string[]
-     */
-    public function get_activators(): array {
-        $this->load();
+trait HasActivatorServiceProviderTrait {
 
-        $activators = [];
+	/**
+	 * Returns list of activators.
+	 *
+	 * @return string[]
+	 */
+	public function get_activators(): array {
+		$this->load();
 
-        foreach ($this->get_services_to_load() as $registration) {
-            if(! $registration instanceof ActivatorRegistration) {
-                continue;
-            }
+		$activators = [];
 
-            $activators []= $registration->get_id();
-        }
+		foreach ( $this->get_services_to_load() as $registration ) {
+			if ( ! $registration instanceof ActivatorRegistration ) {
+				continue;
+			}
 
-        return $activators;
-    }
+			$activators [] = $registration->get_id();
+		}
 
-    /**
-     * register activator.
-     *
-     * @param string $classname Classname from the activator.
-     * @return ActivatorRegistration
-     */
-    public function register_activator(string $classname ): ActivatorRegistration
-    {
-        $registration = new ActivatorRegistration( $classname );
+		return $activators;
+	}
 
-        $this->add_service_to_load($registration);
+	/**
+	 * Register activator.
+	 *
+	 * @param string $classname Classname from the activator.
+	 * @return ActivatorRegistration
+	 */
+	public function register_activator( string $classname ): ActivatorRegistration {
+		$registration = new ActivatorRegistration( $classname );
 
-        return $registration;
-    }
+		$this->add_service_to_load( $registration );
 
-    /**
-     * Loads definitions.
-     *
-     * @return void
-     */
-    abstract protected function load();
+		return $registration;
+	}
 
-    /**
-     * @return Registration[]
-     */
-    abstract protected function get_services_to_load(): array;
+	/**
+	 * Loads definitions.
+	 *
+	 * @return void
+	 */
+	abstract protected function load();
 
-    abstract protected function add_service_to_load(Registration $registration): void;
+	/**
+	 * Get the service to load.
+	 *
+	 * @return Registration[]
+	 */
+	abstract protected function get_services_to_load(): array;
+
+	/**
+	 * Add to the list of service to load.
+	 *
+	 * @param Registration $registration Registration from the service to add.
+	 * @return void
+	 */
+	abstract protected function add_service_to_load( Registration $registration ): void;
 }

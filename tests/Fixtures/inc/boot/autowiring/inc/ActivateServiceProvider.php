@@ -15,6 +15,6 @@ class ActivateServiceProvider extends AbstractServiceProvider implements HasActi
      */
     protected function define()
     {
-       $this->register_activator(Activator::class);
+       $this->register_activator(Activator::class)->autowire();
     }
 }

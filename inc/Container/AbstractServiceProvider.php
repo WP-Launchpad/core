@@ -172,20 +172,19 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		return $this->register_subscriber( $classname, 'init' );
 	}
 
-    /**
-     * Register deactivator.
-     *
-     * @param string $classname Classname from the deactivator.
-     * @return DeactivatorRegistration
-     */
-    public function register_deactivator( string $classname ): DeactivatorRegistration
-    {
-        $registration = new DeactivatorRegistration($classname);
+	/**
+	 * Register deactivator.
+	 *
+	 * @param string $classname Classname from the deactivator.
+	 * @return DeactivatorRegistration
+	 */
+	public function register_deactivator( string $classname ): DeactivatorRegistration {
+		$registration = new DeactivatorRegistration( $classname );
 
-        $this->services_to_load[] = $registration;
+		$this->services_to_load[] = $registration;
 
-        return $registration;
-    }
+		return $registration;
+	}
 
 	/**
 	 * Define classes.
@@ -228,6 +227,11 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		$this->generate_provides();
 	}
 
+	/**
+	 * Generates the provides list from the service provider.
+	 *
+	 * @return void
+	 */
 	protected function generate_provides() {
 
 		$this->provides = [];
@@ -267,13 +271,22 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 		return $subscribers;
 	}
 
-    protected function get_services_to_load(): array
-    {
-        return $this->services_to_load;
-    }
+	/**
+	 * Get the service to load.
+	 *
+	 * @return Registration[]
+	 */
+	protected function get_services_to_load(): array {
+		return $this->services_to_load;
+	}
 
-    protected function add_service_to_load(Registration $registration): void
-    {
-        $this->services_to_load [] = $registration;
-    }
+	/**
+	 * Add to the list of service to load.
+	 *
+	 * @param Registration $registration Registration from the service to add.
+	 * @return void
+	 */
+	protected function add_service_to_load( Registration $registration ): void {
+		$this->services_to_load [] = $registration;
+	}
 }

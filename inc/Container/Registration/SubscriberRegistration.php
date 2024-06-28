@@ -6,15 +6,15 @@ use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareInterface;
 use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareTrait;
 
 class SubscriberRegistration extends Registration implements AutowireAwareInterface {
-    use AutowireAwareTrait;
-    
+	use AutowireAwareTrait;
+
 	/**
 	 * Type of subscriber.
 	 *
 	 * @var string
 	 */
 	protected $type;
-    
+
 	/**
 	 * Instantiate the class.
 	 *

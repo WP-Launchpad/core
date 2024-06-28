@@ -5,40 +5,48 @@ namespace LaunchpadCore\Deactivation;
 use LaunchpadCore\Container\Registration\DeactivatorRegistration;
 use LaunchpadCore\Container\Registration\Registration;
 
-trait HasDesactivatorServiceProviderTrait
-{
-    /**
-     * Returns list of deactivators.
-     *
-     * @return string[]
-     */
-    public function get_deactivators(): array {
-        $this->load();
+trait HasDesactivatorServiceProviderTrait {
 
-        $deasactivators = [];
+	/**
+	 * Returns list of deactivators.
+	 *
+	 * @return string[]
+	 */
+	public function get_deactivators(): array {
+		$this->load();
 
-        foreach ($this->get_services_to_load() as $registration) {
-            if(! $registration instanceof DeactivatorRegistration) {
-                continue;
-            }
+		$deasactivators = [];
 
-            $deasactivators []= $registration->get_id();
-        }
+		foreach ( $this->get_services_to_load() as $registration ) {
+			if ( ! $registration instanceof DeactivatorRegistration ) {
+				continue;
+			}
 
-        return $deasactivators;
-    }
+			$deasactivators [] = $registration->get_id();
+		}
 
-    /**
-     * Loads definitions.
-     *
-     * @return void
-     */
-    abstract protected function load();
+		return $deasactivators;
+	}
 
-    /**
-     * @return Registration[]
-     */
-    abstract protected function get_services_to_load(): array;
+	/**
+	 * Loads definitions.
+	 *
+	 * @return void
+	 */
+	abstract protected function load();
 
-    abstract protected function add_service_to_load(Registration $registration): void;
+	/**
+	 * Get the service to load.
+	 *
+	 * @return Registration[]
+	 */
+	abstract protected function get_services_to_load(): array;
+
+	/**
+	 * Add to the list of service to load.
+	 *
+	 * @param Registration $registration Registration from the service to add.
+	 * @return void
+	 */
+	abstract protected function add_service_to_load( Registration $registration ): void;
 }
