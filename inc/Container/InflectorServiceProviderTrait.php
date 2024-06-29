@@ -13,6 +13,7 @@ trait InflectorServiceProviderTrait {
 	 * @var InflectorRegistration[]
 	 */
 	protected $inflectors = [];
+
 	/**
 	 * Returns inflectors mapping.
 	 *
