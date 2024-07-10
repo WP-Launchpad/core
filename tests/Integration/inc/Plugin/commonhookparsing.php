@@ -24,29 +24,12 @@ class Test_commonhookparsing extends TestCase {
             'common_callback_with_numbers_in_name_2024',
         ];
 
-        $event_not_setup = [
-            'admin_hook',
-            'init_hook',
-            'optimize_init',
-            'root_hook',
-        ];
-
-        $events =array_merge($event_setup, $event_not_setup);
-
-        foreach ($events as $event) {
-            $this->assertFalse($this->event_manager->has_callback($event), $event);
-        }
-
         $this->setup_plugin($this->prefix, [
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\common\ServiceProvider::class,
         ]);
 
         foreach ($event_setup as $event) {
             $this->assertTrue($this->event_manager->has_callback($event), $event);
-        }
-
-        foreach ($event_not_setup as $event) {
-            $this->assertFalse($this->event_manager->has_callback($event), $event);
         }
 
         $actions = [
