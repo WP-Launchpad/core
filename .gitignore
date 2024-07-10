@@ -1,3 +1,13 @@
-.idea
+# Vendor
 vendor
 composer.lock
+
+# Tests
+.phpunit.result.cache
+
+# Env
+.env
+.lando.yml
+
+# IDE
+.idea
