@@ -7,6 +7,7 @@ use LaunchpadCore\Container\Registration\Autowiring\AutowireAwareInterface;
 use LaunchpadCore\Container\Registration\DeactivatorRegistration;
 use LaunchpadCore\Container\Registration\Registration;
 use LaunchpadCore\Container\Registration\SubscriberRegistration;
+use League\Container\Container;
 use League\Container\ServiceProvider\AbstractServiceProvider as LeagueServiceProvider;
 
 abstract class AbstractServiceProvider extends LeagueServiceProvider implements ServiceProviderInterface {
@@ -45,7 +46,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	public function provides( string $alias ): bool {
 		$this->load();
 
-		return parent::provides( $alias );
+		return in_array( $alias, $this->provides );
 	}
 
 	/**
@@ -198,7 +199,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 *
 	 * @return void
 	 */
-	public function register() {
+	public function register(): void {
 		foreach ( $this->services_to_load as $registration ) {
 
 			if (
@@ -288,5 +289,14 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	 */
 	protected function add_service_to_load( Registration $registration ): void {
 		$this->services_to_load [] = $registration;
+	}
+
+	/**
+	 * Get the league container.
+	 *
+	 * @return Container
+	 */
+	public function getLeagueContainer(): Container {
+		return $this->getContainer();
 	}
 }

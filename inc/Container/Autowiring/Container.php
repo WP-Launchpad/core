@@ -3,11 +3,13 @@
 
 namespace LaunchpadCore\Container\Autowiring;
 
-use League\Container\Argument\ClassName;
-use League\Container\Argument\ClassNameWithOptionalValue;
-use League\Container\Argument\RawArgument;
+use League\Container\Argument\DefaultValueArgument;
+use League\Container\Argument\LiteralArgument;
+use League\Container\Argument\ResolvableArgument;
+use League\Container\Exception\NotFoundException;
 use League\Container\ReflectionContainer;
 use ReflectionFunctionAbstract;
+use ReflectionNamedType;
 use ReflectionParameter;
 
 class Container extends ReflectionContainer {
@@ -16,44 +18,50 @@ class Container extends ReflectionContainer {
 	 * {@inheritdoc}
 	 */
 	public function reflectArguments( ReflectionFunctionAbstract $method, array $args = [] ): array {
-		$arguments = array_map(
-			function ( ReflectionParameter $param ) use ( $method, $args ) {
-				$name = $param->getName();
-				$type = $param->getType();
+        $params    = $method->getParameters();
+        $arguments = [];
 
-				if ( array_key_exists( $name, $args ) ) {
-					return new RawArgument( $args[ $name ] );
-				}
+        foreach ($params as $param) {
+            $name = $param->getName();
 
-				if ( $type ) {
-					if ( PHP_VERSION_ID >= 70100 ) {
-						$typeName = $type->getName();
-					} else {
-						$typeName = (string) $type;
-					}
+            // if we've been given a value for the argument, treat as literal
+            if (array_key_exists($name, $args)) {
+                $arguments[] = new LiteralArgument($args[$name]);
+                continue;
+            }
 
-					$typeName = ltrim( $typeName, '?' );
+            $type = $param->getType();
 
-					if ( ! in_array( $typeName, [ 'string', 'float', 'int', 'bool', 'array', 'object' ], true ) ) {
-						if ( $param->isDefaultValueAvailable() ) {
-							return new ClassNameWithOptionalValue( $typeName, $param->getDefaultValue() );
-						}
+            if ($type instanceof ReflectionNamedType) {
+                // in PHP 8, nullable arguments have "?" prefix
+                $typeHint = ltrim($type->getName(), '?');
 
-						return new ClassName( $typeName );
-					}
-				}
+                if ( ! in_array( $typeHint, [ 'string', 'float', 'int', 'bool', 'array', 'object' ], true ) ) {
+                    if ($param->isDefaultValueAvailable()) {
+                        $arguments[] = new DefaultValueArgument($typeHint, $param->getDefaultValue());
+                        continue;
+                    }
 
-				if ( $param->isDefaultValueAvailable() ) {
-					return new RawArgument( $param->getDefaultValue() );
-				}
+                    $arguments[] = new ResolvableArgument($typeHint);
+                    continue;
+                }
 
-				$name = rtrim( $name, '$' );
+                if ( $param->isDefaultValueAvailable() ) {
+                    $arguments[] =  new DefaultValueArgument( $param->getDefaultValue() );
+                    continue;
+                }
+            }
 
-				return new ClassName( $name );
-			},
-			$method->getParameters()
-			);
+            if ($param->isDefaultValueAvailable()) {
+                $arguments[] = new LiteralArgument($param->getDefaultValue());
+                continue;
+            }
 
-		return $this->resolveArguments( $arguments );
+            $name = rtrim( $name, '$' );
+
+            $arguments[] =  new ResolvableArgument( $name );
+        }
+
+        return $this->resolveArguments($arguments);
 	}
 }
