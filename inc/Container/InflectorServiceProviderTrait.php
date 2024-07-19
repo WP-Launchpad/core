@@ -54,12 +54,12 @@ trait InflectorServiceProviderTrait {
 	/**
 	 * Register an inflector.
 	 *
-	 * @param string $interface Interface the inflector is attached to.
+	 * @param string $interface_name Interface the inflector is attached to.
 	 *
 	 * @return InflectorRegistration
 	 */
-	public function register_inflector( string $interface ): InflectorRegistration {
-		$registration = new InflectorRegistration( $interface );
+	public function register_inflector( string $interface_name ): InflectorRegistration {
+		$registration = new InflectorRegistration( $interface_name );
 
 		$this->inflectors [] = $registration;
 
