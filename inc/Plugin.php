@@ -11,6 +11,7 @@ use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadDispatcher\Dispatcher;
+use League\Container\Argument\Literal\StringArgument;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
@@ -89,6 +90,10 @@ class Plugin {
 	public function load( array $params, array $providers = [] ) {
 
 		foreach ( $params as $key => $value ) {
+			if ( is_string( $value ) && ! class_exists( $value ) ) {
+				$value = new StringArgument( $value );
+			}
+
 			$this->container->addShared( $key, $value );
 		}
 

@@ -12,11 +12,20 @@ class Activator implements ActivationInterface, PrefixAwareInterface, Dispatcher
 {
     use PrefixAware, DispatcherAwareTrait;
 
+    protected $key;
+
+    /**
+     * @var Cache
+     */
+    protected $cache;
+
     protected $activateDependency;
 
-    public function __construct(ActivateDependency $activateDependency)
+    public function __construct(ActivateDependency $activateDependency, $key, $cache)
     {
         $this->activateDependency = $activateDependency;
+        $this->key = $key;
+        $this->cache = $cache;
     }
 
 
@@ -27,5 +36,6 @@ class Activator implements ActivationInterface, PrefixAwareInterface, Dispatcher
     {
         update_option('demo_option', true);
         $this->dispatcher->do_action("{$this->prefix}test");
+        $this->cache->clean();
     }
 }

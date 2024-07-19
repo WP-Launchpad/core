@@ -14,9 +14,18 @@ class Deactivator implements DeactivationInterface, PrefixAwareInterface, Dispat
 
     protected $deactivateDependency;
 
-    public function __construct(DeactivateDependency $deactivateDependency)
+    /**
+     * @var Cache
+     */
+    protected $cache;
+
+    protected $key_param;
+
+    public function __construct(DeactivateDependency $deactivateDependency, $cache, $key_param)
     {
         $this->deactivateDependency = $deactivateDependency;
+        $this->cache = $cache;
+        $this->key_param = $key_param;
     }
 
     /**
@@ -26,5 +35,6 @@ class Deactivator implements DeactivationInterface, PrefixAwareInterface, Dispat
     {
         delete_option('demo_option');
         $this->dispatcher->do_action("{$this->prefix}test");
+        $this->cache->clean();
     }
 }

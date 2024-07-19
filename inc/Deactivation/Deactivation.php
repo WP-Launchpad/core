@@ -7,6 +7,7 @@ use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
 use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
 use LaunchpadDispatcher\Dispatcher;
+use League\Container\Argument\Literal\StringArgument;
 use Psr\Container\ContainerInterface;
 
 class Deactivation {
@@ -89,7 +90,11 @@ class Deactivation {
 		$container = self::$container;
 
 		foreach ( self::$params as $key => $value ) {
-			$container->add( $key, $value );
+			if ( is_string( $value ) && ! class_exists( $value ) ) {
+				$value = new StringArgument( $value );
+			}
+
+			$container->addShared( $key, $value );
 		}
 
 		$container->addShared( 'dispatcher', self::$dispatcher );
