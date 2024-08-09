@@ -6,17 +6,20 @@ use League\Container\Argument\ArgumentInterface;
 use League\Container\Argument\ClassNameInterface;
 use League\Container\Argument\LiteralArgumentInterface;
 use League\Container\Argument\RawArgumentInterface;
-use League\Container\Exception\ContainerException;
-use Psr\Container\ContainerInterface;
 
 class Definition extends \League\Container\Definition\Definition {
+
 	/**
-	 * {@inheritdoc}
+	 * Resolve class.
+	 *
+	 * @param bool $new Force new class.
+	 *
+	 * @return mixed|object|string
 	 */
-	public function resolve( bool $new = false ) {
+	public function resolve( bool $new = false ) { // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Universal.NamingConventions.NoReservedKeywordParameterNames.newFound
 		$concrete = $this->concrete;
 
-		if ( $this->isShared() && $this->resolved !== null && $new === false ) {
+		if ( $this->isShared() && ( null !== $this->resolved ) && false === $new ) {
 			return $this->resolved;
 		}
 
