@@ -151,7 +151,7 @@ class Activation {
 
 			foreach ( $provider->get_activators() as $activator ) {
 				$activator_instance = self::$container->get( $activator );
-				$activator_instance = $wrapper->wrap($activator_instance);
+				$activator_instance = $wrapper->wrap( $activator_instance );
 
 				$activator_instance->activate();
 			}

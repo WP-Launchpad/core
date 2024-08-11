@@ -7,10 +7,11 @@ use ReflectionClass;
 
 class ActivatorWrapper {
 	/**
-	 * @param $instance
+	 * Wrap a activator will the common interface for activators.
+	 *
+	 * @param object $instance Any class activator.
 	 *
 	 * @return ActivationInterface
-	 * @throws \ReflectionException
 	 */
 	public function wrap( $instance ): ActivationInterface {
 		if ( $instance instanceof ActivationInterface ) {
@@ -37,6 +38,6 @@ class ActivatorWrapper {
 			$activate_methods[] = $method;
 		}
 
-		return new ActivatorProxy($instance, $activate_methods);
+		return new ActivatorProxy( $instance, $activate_methods );
 	}
 }
