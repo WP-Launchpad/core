@@ -4,11 +4,11 @@ namespace LaunchpadCore\Tests\Fixtures\inc\boot\autowiring\inc;
 
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Deactivation\HasDeactivatorServiceProviderInterface;
-use LaunchpadCore\Deactivation\HasDesactivatorServiceProviderTrait;
+use LaunchpadCore\Deactivation\HasDeactivatorServiceProviderTrait;
 
 class AnnotationDeactivatorServiceProvider extends AbstractServiceProvider implements HasDeactivatorServiceProviderInterface {
 
-	use HasDesactivatorServiceProviderTrait;
+	use HasDeactivatorServiceProviderTrait;
 	/**
 	 * @inheritDoc
 	 */
