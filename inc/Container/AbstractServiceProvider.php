@@ -173,20 +173,6 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	}
 
 	/**
-	 * Register deactivator.
-	 *
-	 * @param string $classname Classname from the deactivator.
-	 * @return DeactivatorRegistration
-	 */
-	public function register_deactivator( string $classname ): DeactivatorRegistration {
-		$registration = new DeactivatorRegistration( $classname );
-
-		$this->services_to_load[] = $registration;
-
-		return $registration;
-	}
-
-	/**
 	 * Define classes.
 	 *
 	 * @return mixed
