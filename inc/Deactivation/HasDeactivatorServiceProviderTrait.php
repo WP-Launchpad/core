@@ -5,7 +5,7 @@ namespace LaunchpadCore\Deactivation;
 use LaunchpadCore\Container\Registration\DeactivatorRegistration;
 use LaunchpadCore\Container\Registration\Registration;
 
-trait HasDesactivatorServiceProviderTrait {
+trait HasDeactivatorServiceProviderTrait {
 
 	/**
 	 * Returns list of deactivators.

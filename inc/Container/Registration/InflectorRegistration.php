@@ -42,12 +42,13 @@ class InflectorRegistration {
 	 * Add new method.
 	 *
 	 * @param string $method Method name.
-	 * @param array  $paramters Method parameters.
+	 * @param array  $parameters Method parameters.
+	 *
 	 * @return $this
 	 */
-	public function add_method( string $method, array $paramters = [] ): self {
+	public function add_method( string $method, array $parameters = [] ): self {
 		$method = new Method( $method );
-		$method->set_parameters( $paramters );
+		$method->set_parameters( $parameters );
 		$this->methods [] = $method;
 		return $this;
 	}
