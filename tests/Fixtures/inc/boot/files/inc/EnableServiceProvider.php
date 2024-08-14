@@ -16,6 +16,8 @@ class EnableServiceProvider extends AbstractServiceProvider implements HasActiva
     {
         $this->register_service(Activator::class, function (Definition $definition) {
            $definition->addArgument(ActivateDependency::class);
+           $definition->addArgument('key_param');
+           $definition->addArgument('cache');
         });
     }
 

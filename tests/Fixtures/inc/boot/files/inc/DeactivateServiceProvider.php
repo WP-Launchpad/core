@@ -16,6 +16,8 @@ class DeactivateServiceProvider extends AbstractServiceProvider implements HasDe
     {
         $this->register_service(Deactivator::class, function (Definition $definition) {
             $definition->addArgument(DeactivateDependency::class);
+            $definition->addArgument('key_param');
+            $definition->addArgument('cache');
         });
     }
 
