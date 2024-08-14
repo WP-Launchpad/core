@@ -92,7 +92,7 @@ class Activation {
 			self::$container->add( $key, $value );
 		}
 
-		$container->share( 'dispatcher', self::$dispatcher );
+		$container->addShared( 'dispatcher', self::$dispatcher );
 
 		$container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ] );
 		$container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );
