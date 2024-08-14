@@ -46,7 +46,7 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	public function provides( string $alias ): bool {
 		$this->load();
 
-		return in_array( $alias, $this->provides );
+		return in_array( $alias, $this->provides, true );
 	}
 
 	/**
