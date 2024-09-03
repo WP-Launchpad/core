@@ -3,6 +3,7 @@
 namespace LaunchpadCore\EventManagement\Wrapper;
 
 use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
+use Psr\Container\ContainerInterface;
 
 class WrappedSubscriber implements ClassicSubscriberInterface {
 
@@ -20,15 +21,24 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	 */
 	protected $events;
 
+	protected $contexts;
+
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
 	/**
 	 * Instantiate the class.
 	 *
 	 * @param object $instance Real Subscriber.
 	 * @param array  $events Mapping from the events from the subscriber.
 	 */
-	public function __construct( $instance, array $events = [] ) {
-		$this->instance = $instance;
-		$this->events   = $events;
+	public function __construct( ContainerInterface $container, $instance, array $events = [], array $contexts = [] ) {
+		$this->container = $container;
+		$this->instance  = $instance;
+		$this->events    = $events;
+		$this->contexts  = $contexts;
 	}
 
 	/**
@@ -59,7 +69,7 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	 * @param string $name Name from the method.
 	 * @param array  $arguments Parameters from the method.
 	 *
-	 * @return mixed
+	 * @return mixed|void
 	 */
 	public function __call( $name, $arguments ) {
 
@@ -67,6 +77,16 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 			return $this->{$name}( ...$arguments );
 		}
 
-		return $this->instance->{$name}( ...$arguments );
+		if ( ! key_exists( $name, $this->contexts ) || ! $this->contexts[ $name ] || $this->container->get( $this->contexts[ $name ] )() ) {
+			return $this->instance->{$name}( ...$arguments );
+		}
+
+		if ( count( $arguments ) === 0 ) {
+			return;
+		}
+
+		$parameter = array_shift( $arguments );
+
+		return $parameter;
 	}
 }

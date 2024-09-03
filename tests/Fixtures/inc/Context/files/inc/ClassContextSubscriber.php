@@ -3,7 +3,7 @@
 namespace LaunchpadCore\Tests\Fixtures\inc\Context\files\inc;
 
 /**
- * @context \LaunchpadCore\Tests\Fixtures\inc\Context\files\inc\ClassContext
+ * @context LaunchpadCore\Tests\Fixtures\inc\Context\files\inc\ClassContext
  */
 class ClassContextSubscriber {
 
