@@ -21,9 +21,16 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	 */
 	protected $events;
 
+	/**
+	 * Methods contexts.
+	 *
+	 * @var array
+	 */
 	protected $contexts;
 
 	/**
+	 * Container.
+	 *
 	 * @var ContainerInterface
 	 */
 	protected $container;
@@ -31,8 +38,10 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	/**
 	 * Instantiate the class.
 	 *
-	 * @param object $instance Real Subscriber.
-	 * @param array  $events Mapping from the events from the subscriber.
+	 * @param ContainerInterface $container Container.
+	 * @param object             $instance Real Subscriber.
+	 * @param array              $events Mapping from the events from the subscriber.
+	 * @param array              $contexts Methods contexts.
 	 */
 	public function __construct( ContainerInterface $container, $instance, array $events = [], array $contexts = [] ) {
 		$this->container = $container;
