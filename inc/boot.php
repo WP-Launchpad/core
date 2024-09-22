@@ -8,6 +8,7 @@ use League\Container\Container;
 use LaunchpadCore\Activation\Activation;
 use LaunchpadCore\Deactivation\Deactivation;
 use LaunchpadCore\EventManagement\EventManager;
+use League\Container\ReflectionContainer;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -70,27 +71,39 @@ function boot( string $plugin_launcher_file ) {
 
 			$container = new Container();
 
+			if ( key_exists( 'autowiring', $params ) && $params['autowiring'] ) {
+				$reflection_container = new \LaunchpadCore\Container\Autowiring\Container();
+				$container->delegate( $reflection_container );
+			}
+
 			$dispatcher = new Dispatcher();
 
-			$wp_rocket = new Plugin(
+			$plugin = new Plugin(
 			$container,
 			new EventManager(),
-			new SubscriberWrapper( $prefix ),
+			new SubscriberWrapper( $prefix, $container ),
 			$dispatcher
 			);
 
-			$wp_rocket->load( $params, $providers );
+			$plugin->load( $params, $providers );
 		}
 		);
 
-	Deactivation::set_container( new Container() );
+	$container = new Container();
+
+	if ( key_exists( 'autowiring', $params ) && $params['autowiring'] ) {
+		$reflection_container = new \LaunchpadCore\Container\Autowiring\Container();
+		$container->delegate( $reflection_container );
+	}
+
+	Deactivation::set_container( $container );
 	Deactivation::set_dispatcher( new Dispatcher() );
 	Deactivation::set_params( $params );
 	Deactivation::set_providers( $providers );
 
 	register_deactivation_hook( $plugin_launcher_file, [ Deactivation::class, 'deactivate_plugin' ] );
 
-	Activation::set_container( new Container() );
+	Activation::set_container( $container );
 	Activation::set_dispatcher( new Dispatcher() );
 	Activation::set_params( $params );
 	Activation::set_providers( $providers );

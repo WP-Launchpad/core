@@ -3,6 +3,7 @@
 namespace LaunchpadCore\Tests\Integration\inc\Plugin;
 
 use LaunchpadCore\EventManagement\EventManager;
+use LaunchpadCore\Tests\Integration\inc\Plugin\classes\method_registration_init\ServiceProvider;
 use LaunchpadCore\Tests\Integration\inc\Traits\SetupPluginTrait;
 use LaunchpadCore\Tests\Integration\TestCase;
 
@@ -23,11 +24,15 @@ class Test_adminload extends TestCase {
         $event_setup = [
             'admin_hook',
             'common_hook',
-            'init_hook'
+            'init_hook',
+            'method_registration_common_hook',
+            'method_registration_init_hook',
+            'method_registration_admin_hook',
         ];
 
         $event_not_setup = [
             'front_hook',
+            'method_registration_front_hook',
         ];
 
         $events =array_merge($event_setup, $event_not_setup);
@@ -41,6 +46,10 @@ class Test_adminload extends TestCase {
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\admin\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\front\ServiceProvider::class,
             \LaunchpadCore\Tests\Integration\inc\Plugin\classes\init\ServiceProvider::class,
+            ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\method_registration_admin\ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\method_registration_front\ServiceProvider::class,
+            \LaunchpadCore\Tests\Integration\inc\Plugin\classes\method_registration_common\ServiceProvider::class,
         ]);
 
         foreach ($event_setup as $event) {

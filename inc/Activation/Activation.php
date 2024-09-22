@@ -7,6 +7,7 @@ use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
 use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
 use LaunchpadDispatcher\Dispatcher;
+use League\Container\Argument\Literal\StringArgument;
 use Psr\Container\ContainerInterface;
 
 class Activation {
@@ -89,10 +90,14 @@ class Activation {
 		$container = self::$container;
 
 		foreach ( self::$params as $key => $value ) {
-			self::$container->add( $key, $value );
+			if ( is_string( $value ) && ! class_exists( $value ) ) {
+				$value = new StringArgument( $value );
+			}
+
+			self::$container->addShared( $key, $value );
 		}
 
-		$container->share( 'dispatcher', self::$dispatcher );
+		$container->addShared( 'dispatcher', self::$dispatcher );
 
 		$container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ key_exists( 'prefix', self::$params ) ? self::$params['prefix'] : '' ] );
 		$container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $container->get( 'dispatcher' ) ] );

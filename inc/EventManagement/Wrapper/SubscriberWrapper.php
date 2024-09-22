@@ -4,6 +4,7 @@ namespace LaunchpadCore\EventManagement\Wrapper;
 
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\SubscriberInterface;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 
@@ -18,12 +19,21 @@ class SubscriberWrapper {
 	protected $prefix = '';
 
 	/**
+	 * Container.
+	 *
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	/**
 	 * Instantiate class.
 	 *
-	 * @param string $prefix Plugin prefix.
+	 * @param string             $prefix Plugin prefix.
+	 * @param ContainerInterface $container Container.
 	 */
-	public function __construct( string $prefix ) {
-		$this->prefix = $prefix;
+	public function __construct( string $prefix, ContainerInterface $container ) {
+		$this->prefix    = $prefix;
+		$this->container = $container;
 	}
 
 	/**
@@ -36,15 +46,19 @@ class SubscriberWrapper {
 	 */
 	public function wrap( $instance ): SubscriberInterface {
 		if ( $instance instanceof OptimizedSubscriberInterface ) {
-			return new WrappedSubscriber( $instance, $instance->get_subscribed_events() );
+			return new WrappedSubscriber( $this->container, $instance, $instance->get_subscribed_events() );
 		}
 
 		$methods          = get_class_methods( $instance );
 		$reflection_class = new ReflectionClass( get_class( $instance ) );
 		$events           = [];
+		$contexts         = [];
+		$docblock         = $reflection_class->getDocComment() ? $reflection_class->getDocComment() : '';
+		$context          = $this->fetch_context( $docblock );
 		foreach ( $methods as $method ) {
-			$method_reflection = $reflection_class->getMethod( $method );
-			$doc_comment       = $method_reflection->getDocComment();
+			$contexts[ $method ] = $context;
+			$method_reflection   = $reflection_class->getMethod( $method );
+			$doc_comment         = $method_reflection->getDocComment();
 			if ( ! $doc_comment ) {
 				continue;
 			}
@@ -53,6 +67,12 @@ class SubscriberWrapper {
 			preg_match_all( $pattern, $doc_comment, $matches, PREG_PATTERN_ORDER );
 			if ( ! $matches ) {
 				continue;
+			}
+
+			$method_context = $this->fetch_context( $doc_comment );
+
+			if ( $method_context ) {
+				$contexts[ $method ] = $method_context;
 			}
 
 			foreach ( $matches[0] as $index => $match ) {
@@ -66,6 +86,32 @@ class SubscriberWrapper {
 			}
 		}
 
-		return new WrappedSubscriber( $instance, $events );
+		return new WrappedSubscriber( $this->container, $instance, $events, $contexts );
+	}
+
+	/**
+	 * Fetch context from the docblock.
+	 *
+	 * @param string $docblock Docblock to fetch from.
+	 *
+	 * @return string|null
+	 */
+	protected function fetch_context( string $docblock ) {
+		if ( '' === $docblock ) {
+			return null;
+		}
+
+		$pattern = '#@context\s(?<name>[a-zA-Z0-9\\\-_$/]+)#';
+
+		preg_match( $pattern, $docblock, $match );
+		if ( ! $match ) {
+			return null;
+		}
+
+		if ( ! class_exists( $match['name'] ) ) {
+			return null;
+		}
+
+		return $match['name'];
 	}
 }
