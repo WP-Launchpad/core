@@ -1,0 +1,15 @@
+<?php
+
+namespace LaunchpadCore\Tests\Fixtures\inc\boot\autowiring\inc;
+
+use LaunchpadCore\Container\AbstractServiceProvider;
+
+class ServiceProvider extends AbstractServiceProvider
+{
+    protected function define()
+    {
+        $this->register_common_subscriber(Subscriber::class)->autowire();
+
+        $this->register_common_subscriber(RegularSubscriber::class);
+    }
+}
