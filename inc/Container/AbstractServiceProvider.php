@@ -27,6 +27,13 @@ abstract class AbstractServiceProvider extends LeagueServiceProvider implements 
 	protected $loaded = false;
 
 	/**
+	 * IDs from the services provided.
+	 *
+	 * @var string[]
+	 */
+	protected $provides = [];
+
+	/**
 	 * Return IDs provided by the Service Provider.
 	 *
 	 * @return string[]
