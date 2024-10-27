@@ -92,7 +92,9 @@ class Registration {
 	 * @return void
 	 */
 	public function register( Container $container ) {
-		$class_registration = $container->add( $this->id, $this->value, $this->shared );
+		$class_registration = $container->add( $this->id, $this->value );
+
+		$class_registration->setShared( $this->shared );
 
 		if ( ! $this->definition ) {
 			return;
