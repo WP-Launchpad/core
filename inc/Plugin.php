@@ -235,7 +235,7 @@ class Plugin {
 	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
 	 * @throws ReflectionException Error when a classname is invalid.
 	 */
-	private function bload_subscribers( ServiceProviderInterface $service_provider_instance ) {
+	private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
 
 		$subscribers = $service_provider_instance->get_common_subscribers();
 

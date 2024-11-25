@@ -2,9 +2,10 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
+use LaunchpadCore\Dispatcher\Sanitizer\EventSanitizer;
 use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
-use LaunchpadCore\EventManagement\SubscriberInterface;
+use LaunchpadDispatcher\Dispatcher;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -27,14 +28,21 @@ class SubscriberWrapper {
 	protected $container;
 
 	/**
+	 * @var Dispatcher
+	 *
+	 */
+	protected $dispatcher;
+
+	/**
 	 * Instantiate class.
 	 *
 	 * @param string             $prefix Plugin prefix.
 	 * @param ContainerInterface $container Container.
 	 */
-	public function __construct( string $prefix, ContainerInterface $container ) {
+	public function __construct( string $prefix, ContainerInterface $container, Dispatcher $dispatcher) {
 		$this->prefix    = $prefix;
 		$this->container = $container;
+		$this->dispatcher = $dispatcher;
 	}
 
 	/**
@@ -46,9 +54,10 @@ class SubscriberWrapper {
 	 * @throws ReflectionException Error is the class name is not valid.
 	 */
 	public function wrap( string $instance ): ClassicSubscriberInterface {
-		$parents = class_parents( $instance );
+		$parents = class_implements( $instance );
+
 		if ( in_array(OptimizedSubscriberInterface::class, $parents) ) {
-			return new WrappedSubscriber( $this->container, $instance, $instance::get_subscribed_events() );
+			return new WrappedSubscriber( $this->container, $this->dispatcher, $this->prefix, $instance, $instance::get_subscribed_events() );
 		}
 
 		if( in_array( ClassicSubscriberInterface::class, $parents ) ) {
@@ -58,11 +67,7 @@ class SubscriberWrapper {
 		$methods          = get_class_methods( $instance );
 		$reflection_class = new ReflectionClass( $instance );
 		$events           = [];
-		$contexts         = [];
-		$docblock         = $reflection_class->getDocComment() ? $reflection_class->getDocComment() : '';
-		$context          = $this->fetch_context( $docblock );
 		foreach ( $methods as $method ) {
-			$contexts[ $method ] = $context;
 			$method_reflection   = $reflection_class->getMethod( $method );
 			$doc_comment         = $method_reflection->getDocComment();
 			if ( ! $doc_comment ) {
@@ -75,14 +80,10 @@ class SubscriberWrapper {
 				continue;
 			}
 
-			$method_context = $this->fetch_context( $doc_comment );
-
-			if ( $method_context ) {
-				$contexts[ $method ] = $method_context;
-			}
 
 			foreach ( $matches[0] as $index => $match ) {
 				$hook = str_replace( '$prefix', $this->prefix, $matches['name'][ $index ] );
+				$hook = $this->dispatcher->apply_string_filters("{$this->prefix}core_subscriber_event_hook", $hook, $instance);
 
 				$events[ $hook ][] = [
 					$method,
@@ -92,32 +93,8 @@ class SubscriberWrapper {
 			}
 		}
 
-		return new WrappedSubscriber( $this->container, $instance, $events, $contexts );
-	}
+		$events = $this->dispatcher->apply_filters("{$this->prefix}core_subscriber_events", new EventSanitizer(), $events, $instance);
 
-	/**
-	 * Fetch context from the docblock.
-	 *
-	 * @param string $docblock Docblock to fetch from.
-	 *
-	 * @return string|null
-	 */
-	protected function fetch_context( string $docblock ) {
-		if ( '' === $docblock ) {
-			return null;
-		}
-
-		$pattern = '#@context\s(?<name>[a-zA-Z0-9\\\-_$/]+)#';
-
-		preg_match( $pattern, $docblock, $match );
-		if ( ! $match ) {
-			return null;
-		}
-
-		if ( ! class_exists( $match['name'] ) ) {
-			return null;
-		}
-
-		return $match['name'];
+		return new WrappedSubscriber( $this->container, $this->dispatcher, $this->prefix, $instance, $events );
 	}
 }

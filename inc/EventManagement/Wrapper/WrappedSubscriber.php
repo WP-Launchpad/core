@@ -3,6 +3,7 @@
 namespace LaunchpadCore\EventManagement\Wrapper;
 
 use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
+use LaunchpadDispatcher\Dispatcher;
 use Psr\Container\ContainerInterface;
 
 class WrappedSubscriber implements ClassicSubscriberInterface {
@@ -22,18 +23,18 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	protected $events;
 
 	/**
-	 * Methods contexts.
-	 *
-	 * @var array
-	 */
-	protected $contexts;
-
-	/**
 	 * Container.
 	 *
 	 * @var ContainerInterface
 	 */
 	protected $container;
+
+	protected $prefix;
+
+	/**
+	 * @var Dispatcher
+	 */
+	protected $dispatcher;
 
 	/**
 	 * @var string
@@ -46,13 +47,13 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	 * @param ContainerInterface $container Container.
 	 * @param string             $classname Real Subscriber.
 	 * @param array              $events Mapping from the events from the subscriber.
-	 * @param array              $contexts Methods contexts.
 	 */
-	public function __construct( ContainerInterface $container, string $classname, array $events = [], array $contexts = [] ) {
+	public function __construct( ContainerInterface $container, Dispatcher $dispatcher, string $prefix, string $classname, array $events = [] ) {
 		$this->container = $container;
 		$this->classname  = $classname;
 		$this->events    = $events;
-		$this->contexts  = $contexts;
+		$this->prefix = $prefix;
+		$this->dispatcher = $dispatcher;
 	}
 
 	/**
@@ -91,21 +92,22 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 			return $this->{$name}( ...$arguments );
 		}
 
+		if($this->dispatcher->apply_bool_filters("{$this->prefix}core_subscriber_disable_callback", false, $this->classname, $name, $arguments)) {
+
+			if ( count( $arguments ) === 0 ) {
+				return;
+			}
+
+			$parameter = array_shift( $arguments );
+
+			return $parameter;
+		}
+
 		if(! $this->instance) {
 			$this->instance = $this->container->get($this->classname);
 		}
 
 
-		if ( ! key_exists( $name, $this->contexts ) || ! $this->contexts[ $name ] || $this->container->get( $this->contexts[ $name ] )() ) {
-			return $this->instance->{$name}( ...$arguments );
-		}
-
-		if ( count( $arguments ) === 0 ) {
-			return;
-		}
-
-		$parameter = array_shift( $arguments );
-
-		return $parameter;
+		return $this->instance->{$name}( ...$arguments );
 	}
 }

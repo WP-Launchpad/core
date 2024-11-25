@@ -27,8 +27,8 @@ trait SetupPluginTrait
     {
         $this->event_manager = new EventManager();
         $this->container = new Container();
-        $this->subscriber_wrapper = new SubscriberWrapper($prefix, $this->container);
-        $this->dispatcher = new Dispatcher();
+		$this->dispatcher = new Dispatcher();
+        $this->subscriber_wrapper = new SubscriberWrapper($prefix, $this->container, $this->dispatcher);
 
         $this->plugin = new Plugin($this->container, $this->event_manager, $this->subscriber_wrapper, $this->dispatcher);
         $this->plugin->load([

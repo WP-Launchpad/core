@@ -18,6 +18,7 @@ class Test_context extends TestCase {
 	 * @dataProvider configTestData
 	 */
 	public function testShouldDoAsExpected($config, $expected) {
+		$this->markTestSkipped('Context no longer part of core');
 		require_once LAUNCHPAD_PLUGIN_ROOT . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'boot.php';
 
 		boot($config['plugin']);

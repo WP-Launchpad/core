@@ -81,7 +81,7 @@ function boot( string $plugin_launcher_file ) {
 			$plugin = new Plugin(
 			$container,
 			new EventManager(),
-			new SubscriberWrapper( $prefix, $container ),
+			new SubscriberWrapper( $prefix, $container, $dispatcher ),
 			$dispatcher
 			);
 
