@@ -36,16 +36,21 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 	protected $container;
 
 	/**
+	 * @var string
+	 */
+	protected $classname;
+
+	/**
 	 * Instantiate the class.
 	 *
 	 * @param ContainerInterface $container Container.
-	 * @param object             $instance Real Subscriber.
+	 * @param string             $classname Real Subscriber.
 	 * @param array              $events Mapping from the events from the subscriber.
 	 * @param array              $contexts Methods contexts.
 	 */
-	public function __construct( ContainerInterface $container, $instance, array $events = [], array $contexts = [] ) {
+	public function __construct( ContainerInterface $container, string $classname, array $events = [], array $contexts = [] ) {
 		$this->container = $container;
-		$this->instance  = $instance;
+		$this->classname  = $classname;
 		$this->events    = $events;
 		$this->contexts  = $contexts;
 	}
@@ -85,6 +90,11 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 		if ( method_exists( $this, $name ) ) {
 			return $this->{$name}( ...$arguments );
 		}
+
+		if(! $this->instance) {
+			$this->instance = $this->container->get($this->classname);
+		}
+
 
 		if ( ! key_exists( $name, $this->contexts ) || ! $this->contexts[ $name ] || $this->container->get( $this->contexts[ $name ] )() ) {
 			return $this->instance->{$name}( ...$arguments );

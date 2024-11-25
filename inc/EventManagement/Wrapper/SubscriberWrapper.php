@@ -2,6 +2,7 @@
 
 namespace LaunchpadCore\EventManagement\Wrapper;
 
+use LaunchpadCore\EventManagement\ClassicSubscriberInterface;
 use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\SubscriberInterface;
 use Psr\Container\ContainerInterface;
@@ -39,18 +40,23 @@ class SubscriberWrapper {
 	/**
 	 * Wrap a subscriber will the common interface for subscribers.
 	 *
-	 * @param object $instance Any class subscriber.
+	 * @param string $instance Any class subscriber.
 	 *
-	 * @return SubscriberInterface
+	 * @return ClassicSubscriberInterface
 	 * @throws ReflectionException Error is the class name is not valid.
 	 */
-	public function wrap( $instance ): SubscriberInterface {
-		if ( $instance instanceof OptimizedSubscriberInterface ) {
-			return new WrappedSubscriber( $this->container, $instance, $instance->get_subscribed_events() );
+	public function wrap( string $instance ): ClassicSubscriberInterface {
+		$parents = class_parents( $instance );
+		if ( in_array(OptimizedSubscriberInterface::class, $parents) ) {
+			return new WrappedSubscriber( $this->container, $instance, $instance::get_subscribed_events() );
+		}
+
+		if( in_array( ClassicSubscriberInterface::class, $parents ) ) {
+			return new $instance;
 		}
 
 		$methods          = get_class_methods( $instance );
-		$reflection_class = new ReflectionClass( get_class( $instance ) );
+		$reflection_class = new ReflectionClass( $instance );
 		$events           = [];
 		$contexts         = [];
 		$docblock         = $reflection_class->getDocComment() ? $reflection_class->getDocComment() : '';

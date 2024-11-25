@@ -218,10 +218,7 @@ class Plugin {
 		}
 
 		foreach ( $subscribers as $subscriber ) {
-			$subscriber_object = $this->container->get( $subscriber );
-			if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
-				$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber_object );
-			}
+			$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber );
 
 			$this->event_manager->add_subscriber( $subscriber_object );
 		}
@@ -238,7 +235,7 @@ class Plugin {
 	 * @throws NotFoundExceptionInterface Error when a class is not found on the container.
 	 * @throws ReflectionException Error when a classname is invalid.
 	 */
-	private function load_subscribers( ServiceProviderInterface $service_provider_instance ) {
+	private function bload_subscribers( ServiceProviderInterface $service_provider_instance ) {
 
 		$subscribers = $service_provider_instance->get_common_subscribers();
 
@@ -263,10 +260,7 @@ class Plugin {
 		}
 
 		foreach ( $subscribers as $subscriber ) {
-			$subscriber_object = $this->container->get( $subscriber );
-			if ( ! $subscriber_object instanceof ClassicSubscriberInterface ) {
-				$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber_object );
-			}
+			$subscriber_object = $this->subscriber_wrapper->wrap( $subscriber );
 
 			$this->event_manager->add_subscriber( $subscriber_object );
 		}
