@@ -2,6 +2,7 @@
 
 namespace LaunchpadCore\Activation;
 
+use LaunchpadCore\Activation\Wrapper\ActivatorWrapper;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
@@ -139,6 +140,8 @@ class Activation {
 			self::$container->addServiceProvider( $provider );
 		}
 
+		$wrapper = new ActivatorWrapper();
+
 		foreach ( $providers as $service_provider ) {
 			if ( ! $service_provider instanceof HasInflectorInterface ) {
 				continue;
@@ -153,9 +156,8 @@ class Activation {
 
 			foreach ( $provider->get_activators() as $activator ) {
 				$activator_instance = self::$container->get( $activator );
-				if ( ! $activator_instance instanceof ActivationInterface ) {
-					continue;
-				}
+				$activator_instance = $wrapper->wrap( $activator_instance );
+
 				$activator_instance->activate();
 			}
 		}

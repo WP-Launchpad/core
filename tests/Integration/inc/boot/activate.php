@@ -12,7 +12,8 @@ class Test_activate extends TestCase
     {
         parent::set_up();
         delete_option('demo_option');
-    }
+		delete_option('demo_option_2');
+	}
 
     public function tear_down()
     {
@@ -32,5 +33,6 @@ class Test_activate extends TestCase
         do_action("activate_{$activate_plugin_path}");
 
         $this->assertTrue(get_option('demo_option', false), "option should be registered");
-    }
+		$this->assertTrue(get_option('demo_option_2', false), "option should be registered");
+	}
 }

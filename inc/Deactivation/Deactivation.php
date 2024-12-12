@@ -5,6 +5,7 @@ namespace LaunchpadCore\Deactivation;
 use LaunchpadCore\Container\AbstractServiceProvider;
 use LaunchpadCore\Container\HasInflectorInterface;
 use LaunchpadCore\Container\PrefixAwareInterface;
+use LaunchpadCore\Deactivation\Wrapper\DeactivatorWrapper;
 use LaunchpadCore\Dispatcher\DispatcherAwareInterface;
 use LaunchpadDispatcher\Dispatcher;
 use League\Container\Argument\Literal\StringArgument;
@@ -127,6 +128,8 @@ class Deactivation {
 			$providers
 			);
 
+		$wrapper = new DeactivatorWrapper();
+
 		foreach ( $providers as $provider ) {
 			$container->addServiceProvider( $provider );
 		}
@@ -153,9 +156,8 @@ class Deactivation {
 
 			foreach ( $provider->get_deactivators() as $deactivator ) {
 				$deactivator_instance = self::$container->get( $deactivator );
-				if ( ! $deactivator_instance instanceof DeactivationInterface ) {
-					continue;
-				}
+				$deactivator_instance = $wrapper->wrap( $deactivator_instance );
+
 				$deactivator_instance->deactivate();
 			}
 		}
