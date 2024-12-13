@@ -12,6 +12,7 @@ use LaunchpadCore\EventManagement\OptimizedSubscriberInterface;
 use LaunchpadCore\EventManagement\Wrapper\SubscriberWrapper;
 use LaunchpadDispatcher\Dispatcher;
 use League\Container\Argument\Literal\StringArgument;
+use League\Container\ContainerAwareInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use LaunchpadCore\Container\IsOptimizableServiceProvider;
@@ -111,6 +112,7 @@ class Plugin {
 
 		$this->container->inflector( PrefixAwareInterface::class )->invokeMethod( 'set_prefix', [ $this->container->get( 'prefix' ) ] );
 		$this->container->inflector( DispatcherAwareInterface::class )->invokeMethod( 'set_dispatcher', [ $this->container->get( 'dispatcher' ) ] );
+		$this->container->inflector( ContainerAwareInterface::class )->invokeMethod( 'setContainer', [ $this->container ] );
 
 		$providers = array_map(
 			function ( $classname ) {
