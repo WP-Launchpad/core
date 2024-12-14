@@ -92,7 +92,7 @@ class WrappedSubscriber implements ClassicSubscriberInterface {
 			return $this->{$name}( ...$arguments );
 		}
 
-		if("{$this->prefix}core_subscriber_disable_callback" !== current_filter() && $this->dispatcher->apply_bool_filters("{$this->prefix}core_subscriber_disable_callback", false, $this->classname, $name, $arguments)) {
+		if("{$this->prefix}core_subscriber_callback_enabled" !== current_filter() && ! $this->dispatcher->apply_bool_filters("{$this->prefix}core_subscriber_callback_enabled", true, $this->classname, $name, $arguments)) {
 
 			if ( count( $arguments ) === 0 ) {
 				return;
