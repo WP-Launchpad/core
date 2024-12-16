@@ -5,19 +5,20 @@ namespace LaunchpadCore\Tests\Integration\inc\boot;
 use LaunchpadCore\Tests\Integration\TestCase;
 use function LaunchpadCore\boot;
 
-class
-Test_deactivate extends TestCase
+class Test_deactivate extends TestCase
 {
 
     public function set_up()
     {
         parent::set_up();
         update_option('demo_option', true);
-    }
+		update_option('demo_option_2', true);
+	}
 
     public function tear_down()
     {
-        delete_option('demo_option');
+		delete_option('demo_option_2');
+		delete_option('demo_option');
         parent::tear_down();
     }
 
@@ -32,6 +33,6 @@ Test_deactivate extends TestCase
         $activate_plugin_path = ltrim( $config['plugin'], DIRECTORY_SEPARATOR);
         do_action("deactivate_{$activate_plugin_path}");
 
-        $this->assertFalse(get_option('demo_option', false), "option should be unregistered");
-    }
+		$this->assertFalse(get_option('demo_option', false), "demo_option should be unregistered");
+		$this->assertFalse(get_option('demo_option_2', false), "demo_option_2 should be unregistered");    }
 }

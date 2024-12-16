@@ -6,4 +6,6 @@ return [
     \LaunchpadCore\Tests\Fixtures\inc\boot\inflector\inc\ActivateDependencyServiceProvider::class,
     \LaunchpadCore\Tests\Fixtures\inc\boot\inflector\inc\DeactivateServiceProvider::class,
     \LaunchpadCore\Tests\Fixtures\inc\boot\inflector\inc\DeactivateDependencyServiceProvider::class,
+	\LaunchpadCore\Tests\Fixtures\inc\boot\inflector\inc\AnnotationDeactivatorServiceProvider::class,
+	\LaunchpadCore\Tests\Fixtures\inc\boot\inflector\inc\AnnotationActivatorServiceProvider::class,
 ];
