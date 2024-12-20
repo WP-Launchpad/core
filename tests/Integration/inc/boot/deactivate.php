@@ -34,5 +34,6 @@ class Test_deactivate extends TestCase
         do_action("deactivate_{$activate_plugin_path}");
 
 		$this->assertFalse(get_option('demo_option', false), "demo_option should be unregistered");
-		$this->assertFalse(get_option('demo_option_2', false), "demo_option_2 should be unregistered");    }
+		$this->assertFalse(get_option('demo_option_2', false), "demo_option_2 should be unregistered");
+	}
 }
